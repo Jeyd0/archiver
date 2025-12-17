@@ -38,7 +38,7 @@ namespace archiver
 
         private void button3_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Archiver Application\n\nVersion 1.0\n\nA simple file compression and extraction tool.\n\nSupported formats:\n• Compress: ZIP\n• Extract: ZIP, 7z, RAR, TAR, GZip, BZ2, CAB, ISO, ARJ*, LZH*, UUE*, ACE*\n\n* Limited support\n\nCreated By: Jade Dajuela",
+            MessageBox.Show("Archiver Application\n\nVersion 1.0\n\nA simple file compression and extraction tool.\n\nSupported formats:\n• Compress: ZIP\n• Extract: ZIP, 7z, RAR, TAR, GZip, BZ2, CAB, ISO, ARJ*, LZH*, UUE*, ACE*\n\n* Limited support\n\nCreated By: Jeyd0",
                 "About Archiver", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
