@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace archiver
 {
-    public partial class home : Form
+    public partial class compress : Form
     {
         // Supported file extensions
         private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls" };
@@ -14,7 +14,7 @@ namespace archiver
         // Store the selected output folder path
         private string _outputFolderPath = string.Empty;
 
-        public home()
+        public compress()
         {
             InitializeComponent();
         }
@@ -304,7 +304,7 @@ namespace archiver
             // Validate output folder is selected
             if (string.IsNullOrEmpty(_outputFolderPath))
             {
-                MessageBox.Show("Please select a folder to save the archive using the Browse button.", 
+                MessageBox.Show("Please select a folder to save the archive using the Browse button.",
                     "No Output Location", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -312,7 +312,7 @@ namespace archiver
             // Validate output folder exists
             if (!Directory.Exists(_outputFolderPath))
             {
-                MessageBox.Show("The selected output folder no longer exists. Please select a new location.", 
+                MessageBox.Show("The selected output folder no longer exists. Please select a new location.",
                     "Folder Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 _outputFolderPath = string.Empty;
                 textBox2.Text = string.Empty;
@@ -326,7 +326,7 @@ namespace archiver
             // Check if file already exists
             if (File.Exists(zipPath))
             {
-                var result = MessageBox.Show($"A file named '{zipFileName}' already exists.\n\nDo you want to overwrite it?", 
+                var result = MessageBox.Show($"A file named '{zipFileName}' already exists.\n\nDo you want to overwrite it?",
                     "File Exists", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result != DialogResult.Yes)
@@ -619,6 +619,18 @@ namespace archiver
         public string GetOutputFolderPath()
         {
             return _outputFolderPath;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Form f2 = new home();
+            f2.Show();
+            this.Hide();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
