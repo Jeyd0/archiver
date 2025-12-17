@@ -9,10 +9,11 @@ A simple and user-friendly Windows desktop application for compressing and extra
 ## Features
 
 ### Compression
+- **Multi-Format Support**: Create archives in ZIP, TAR, ISO, GZip, BZip2, and LZip formats
 - **File Selection**: Browse and select multiple files using a file dialog
 - **Drag & Drop**: Simply drag files onto the application window to add them
 - **Search/Filter**: Quickly filter your file list with the built-in search functionality
-- **Custom Archive Names**: Specify your own ZIP file name or use auto-generated names
+- **Custom Archive Names**: Specify your own archive name or use auto-generated names
 - **Progress Tracking**: Visual progress bar with time estimation during compression
 - **Duplicate Handling**: Automatically handles duplicate file names in archives
 - **Context Menu**: Right-click options for removing items, opening file locations, and more
@@ -22,6 +23,17 @@ A simple and user-friendly Windows desktop application for compressing and extra
 - **Archive Preview**: View contents of an archive before extracting
 - **Custom Output Folder**: Choose where to extract files
 - **Progress Tracking**: Visual progress bar during extraction
+
+### Supported Archive Formats for Compression
+
+| Format | Extensions |
+|--------|------------|
+| ZIP | `.zip` |
+| TAR | `.tar` |
+| ISO | `.iso` |
+| GZip | `.gz` |
+| BZip2 | `.bz2` |
+| LZip | `.lz` |
 
 ### Supported File Types for Compression
 
@@ -123,10 +135,11 @@ The application starts with a home screen where you can choose to:
 2. Add files using either method:
    - **Add Button**: Click "Add" to open the file browser and select files
    - **Drag and Drop**: Drag files directly onto the application window
-3. Click "Browse" to select the output folder for your ZIP file
-4. (Optional) Enter a custom name in the archive name field
-5. Click "Compress" to create the ZIP archive
-6. Monitor progress in the progress dialog
+3. Select the desired archive format (ZIP, TAR, ISO, etc.) from the dropdown
+4. Click "Browse" to select the output folder for your archive
+5. (Optional) Enter a custom name in the archive name field
+6. Click "Compress" to create the archive
+7. Monitor progress in the progress dialog
 
 ### Extracting Archives
 
@@ -187,5 +200,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [.NET 8.0](https://dotnet.microsoft.com/)
 - Windows Forms for the user interface
 - System.IO.Compression for ZIP compression
-- [SharpCompress](https://github.com/adamhathcock/sharpcompress) for multi-format archive extraction
-- Created by Jeyd0
+- [SharpCompress](https://github.com/adamhathcock/sharpcompress) for multi-format archive extraction and compression
+- [DiscUtils](https://github.com/DiscUtils/DiscUtils) for ISO creation
+- Created by Jade Dajuela

@@ -1,5 +1,13 @@
 using System.IO;
+using SharpCompress.Archives;
+using SharpCompress.Archives.Tar;
+using SharpCompress.Archives.GZip;
+using SharpCompress.Common;
+using SharpCompress.Compressors.BZip2;
+using SharpCompress.Compressors.LZMA;
+using SharpCompress.Writers;
 using System.IO.Compression;
+using DiscUtils.Iso9660;
 
 namespace archiver
 {
@@ -13,6 +21,9 @@ namespace archiver
 
         // Store the selected output folder path
         private string _outputFolderPath = string.Empty;
+
+        // Store the selected archive format
+        private string _selectedArchiveFormat = "Zip";
 
         public compress()
         {
@@ -28,6 +39,9 @@ namespace archiver
             // Wire up search textbox event
             textBox4.TextChanged += TextBox4_TextChanged;
 
+            // Wire up combobox event
+            comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
+
             // Set up context menu for list box
             SetupContextMenu();
 
@@ -38,6 +52,60 @@ namespace archiver
 
             // Set default zip name
             textBox3.Text = $"archive_{DateTime.Now:yyyyMMdd}";
+
+            // Set default selection for combobox
+            comboBox1.SelectedIndex = 0; // Default to Zip
+        }
+
+        /// <summary>
+        /// Handles the combobox selection changed event - updates the selected archive format
+        /// </summary>
+        private void ComboBox1_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (comboBox1.SelectedIndex >= 0)
+            {
+                _selectedArchiveFormat = comboBox1.SelectedItem?.ToString() ?? "Zip";
+                UpdateArchiveNameExtension();
+            }
+        }
+
+        /// <summary>
+        /// Updates the archive name extension based on selected format
+        /// </summary>
+        private void UpdateArchiveNameExtension()
+        {
+            string currentName = textBox3.Text.Trim();
+            
+            // Remove existing extension if present
+            string[] knownExtensions = { ".zip", ".tar", ".iso", ".gz", ".bz2", ".lz" };
+            foreach (string ext in knownExtensions)
+            {
+                if (currentName.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentName = currentName.Substring(0, currentName.Length - ext.Length);
+                    break;
+                }
+            }
+
+            // The extension will be added when compressing, so just keep the base name
+            textBox3.Text = currentName;
+        }
+
+        /// <summary>
+        /// Gets the file extension for the selected archive format
+        /// </summary>
+        private string GetArchiveExtension()
+        {
+            return _selectedArchiveFormat.ToLower() switch
+            {
+                "zip" => ".zip",
+                "tar" => ".tar",
+                "iso" => ".iso",
+                "gzip" => ".gz",
+                "bzip2" => ".bz2",
+                "lzip" => ".lz",
+                _ => ".zip"
+            };
         }
 
         /// <summary>
@@ -262,7 +330,7 @@ namespace archiver
         }
 
         /// <summary>
-        /// Gets a sanitized ZIP file name from textBox3 or generates a default one
+        /// Gets a sanitized archive file name from textBox3 or generates a default one
         /// </summary>
         private string GetZipFileName()
         {
@@ -280,17 +348,25 @@ namespace archiver
                 zipName = zipName.Replace(c.ToString(), "");
             }
 
-            // Ensure it has .zip extension
-            if (!zipName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            // Remove any existing archive extensions
+            string[] knownExtensions = { ".zip", ".tar", ".iso", ".gz", ".bz2", ".lz" };
+            foreach (string ext in knownExtensions)
             {
-                zipName += ".zip";
+                if (zipName.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+                {
+                    zipName = zipName.Substring(0, zipName.Length - ext.Length);
+                    break;
+                }
             }
+
+            // Add the appropriate extension based on selected format
+            zipName += GetArchiveExtension();
 
             return zipName;
         }
 
         /// <summary>
-        /// Compresses files to ZIP format
+        /// Compresses files to the selected archive format
         /// </summary>
         private void CompressFiles()
         {
@@ -319,20 +395,29 @@ namespace archiver
                 return;
             }
 
-            // Get the ZIP file name from textBox3
-            string zipFileName = GetZipFileName();
-            string zipPath = Path.Combine(_outputFolderPath, zipFileName);
+            // Get the archive file name from textBox3
+            string archiveFileName = GetZipFileName();
+            string archivePath = Path.Combine(_outputFolderPath, archiveFileName);
 
             // Check if file already exists
-            if (File.Exists(zipPath))
+            if (File.Exists(archivePath))
             {
-                var result = MessageBox.Show($"A file named '{zipFileName}' already exists.\n\nDo you want to overwrite it?",
+                var result = MessageBox.Show($"A file named '{archiveFileName}' already exists.\n\nDo you want to overwrite it?",
                     "File Exists", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result != DialogResult.Yes)
                 {
                     return;
                 }
+            }
+
+            // Validate format-specific limitations
+            string format = _selectedArchiveFormat.ToLower();
+            if ((format == "gzip" || format == "bzip2" || format == "lzip") && _filePaths.Count > 1)
+            {
+                MessageBox.Show($"{_selectedArchiveFormat} format can only compress a single file.\n\nPlease select only one file or use ZIP/TAR format for multiple files.",
+                    $"{_selectedArchiveFormat} Limitation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
             // Show progress form and compress
@@ -343,21 +428,47 @@ namespace archiver
 
                 try
                 {
-                    bool success = CreateZipArchiveWithProgress(zipPath, progressForm);
+                    bool success = false;
+
+                    switch (format)
+                    {
+                        case "zip":
+                            success = CreateZipArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        case "tar":
+                            success = CreateTarArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        case "gzip":
+                            success = CreateGZipArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        case "bzip2":
+                            success = CreateBZip2ArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        case "lzip":
+                            success = CreateLZipArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        case "iso":
+                            success = CreateIsoArchiveWithProgress(archivePath, progressForm);
+                            break;
+                        default:
+                            MessageBox.Show($"The {_selectedArchiveFormat} format is not supported.",
+                                "Format Not Supported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                    }
 
                     if (success)
                     {
                         progressForm.SetComplete();
                         System.Threading.Thread.Sleep(500); // Brief pause to show completion
-                        MessageBox.Show($"ZIP archive created successfully!\n\nLocation: {zipPath}",
+                        MessageBox.Show($"{_selectedArchiveFormat.ToUpper()} archive created successfully!\n\nLocation: {archivePath}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else if (progressForm.CancelRequested)
                     {
                         // Delete partial file if cancelled
-                        if (File.Exists(zipPath))
+                        if (File.Exists(archivePath))
                         {
-                            File.Delete(zipPath);
+                            File.Delete(archivePath);
                         }
                         MessageBox.Show("Compression was cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -365,11 +476,11 @@ namespace archiver
                 catch (Exception ex)
                 {
                     // Delete partial file on error
-                    if (File.Exists(zipPath))
+                    if (File.Exists(archivePath))
                     {
-                        try { File.Delete(zipPath); } catch { }
+                        try { File.Delete(archivePath); } catch { }
                     }
-                    MessageBox.Show($"Error creating ZIP archive: {ex.Message}",
+                    MessageBox.Show($"Error creating archive: {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
@@ -433,6 +544,250 @@ namespace archiver
                     }
                 }
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a TAR archive from the selected files with progress reporting
+        /// </summary>
+        private bool CreateTarArchiveWithProgress(string tarPath, ProgressForm progressForm)
+        {
+            // Delete existing file if it exists
+            if (File.Exists(tarPath))
+            {
+                File.Delete(tarPath);
+            }
+
+            // Track entry names to handle duplicates
+            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            progressForm.StartProgress();
+
+            using (var archive = TarArchive.Create())
+            {
+                int totalFiles = _filePaths.Count;
+
+                for (int i = 0; i < totalFiles; i++)
+                {
+                    // Check for cancellation
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    string filePath = _filePaths[i];
+
+                    if (File.Exists(filePath))
+                    {
+                        string entryName = Path.GetFileName(filePath);
+
+                        // Update progress
+                        progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+
+                        // Handle duplicate file names in archive
+                        string originalName = Path.GetFileNameWithoutExtension(entryName);
+                        string extension = Path.GetExtension(entryName);
+                        int counter = 1;
+
+                        while (usedEntryNames.Contains(entryName))
+                        {
+                            entryName = $"{originalName}_{counter}{extension}";
+                            counter++;
+                        }
+
+                        usedEntryNames.Add(entryName);
+                        archive.AddEntry(entryName, filePath);
+                    }
+                }
+
+                // Save the archive
+                using (var fileStream = File.Create(tarPath))
+                {
+                    archive.SaveTo(fileStream, new WriterOptions(CompressionType.None));
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a GZip archive from the selected files with progress reporting
+        /// Note: GZip can only compress a single file
+        /// </summary>
+        private bool CreateGZipArchiveWithProgress(string gzipPath, ProgressForm progressForm)
+        {
+            // Delete existing file if it exists
+            if (File.Exists(gzipPath))
+            {
+                File.Delete(gzipPath);
+            }
+
+            progressForm.StartProgress();
+
+            string filePath = _filePaths[0];
+
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
+
+            string fileName = Path.GetFileName(filePath);
+            progressForm.UpdateProgress(fileName, 1, 1);
+
+            // Check for cancellation
+            if (progressForm.CancelRequested)
+            {
+                return false;
+            }
+
+            using (FileStream originalFileStream = File.OpenRead(filePath))
+            using (FileStream compressedFileStream = File.Create(gzipPath))
+            using (GZipStream compressionStream = new GZipStream(compressedFileStream, CompressionLevel.Optimal))
+            {
+                originalFileStream.CopyTo(compressionStream);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a BZip2 archive from the selected files with progress reporting
+        /// Note: BZip2 can only compress a single file
+        /// </summary>
+        private bool CreateBZip2ArchiveWithProgress(string bzip2Path, ProgressForm progressForm)
+        {
+            // Delete existing file if it exists
+            if (File.Exists(bzip2Path))
+            {
+                File.Delete(bzip2Path);
+            }
+
+            progressForm.StartProgress();
+
+            string filePath = _filePaths[0];
+
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
+
+            string fileName = Path.GetFileName(filePath);
+            progressForm.UpdateProgress(fileName, 1, 1);
+
+            // Check for cancellation
+            if (progressForm.CancelRequested)
+            {
+                return false;
+            }
+
+            using (FileStream originalFileStream = File.OpenRead(filePath))
+            using (FileStream compressedFileStream = File.Create(bzip2Path))
+            using (BZip2Stream compressionStream = new BZip2Stream(compressedFileStream, SharpCompress.Compressors.CompressionMode.Compress, false))
+            {
+                originalFileStream.CopyTo(compressionStream);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates an LZip archive from the selected files with progress reporting
+        /// Note: LZip can only compress a single file
+        /// </summary>
+        private bool CreateLZipArchiveWithProgress(string lzipPath, ProgressForm progressForm)
+        {
+            // Delete existing file if it exists
+            if (File.Exists(lzipPath))
+            {
+                File.Delete(lzipPath);
+            }
+
+            progressForm.StartProgress();
+
+            string filePath = _filePaths[0];
+
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
+
+            string fileName = Path.GetFileName(filePath);
+            progressForm.UpdateProgress(fileName, 1, 1);
+
+            // Check for cancellation
+            if (progressForm.CancelRequested)
+            {
+                return false;
+            }
+
+            using (FileStream originalFileStream = File.OpenRead(filePath))
+            using (FileStream compressedFileStream = File.Create(lzipPath))
+            using (LZipStream compressionStream = new LZipStream(compressedFileStream, SharpCompress.Compressors.CompressionMode.Compress))
+            {
+                originalFileStream.CopyTo(compressionStream);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates an ISO archive from the selected files with progress reporting
+        /// </summary>
+        private bool CreateIsoArchiveWithProgress(string isoPath, ProgressForm progressForm)
+        {
+            // Delete existing file if it exists
+            if (File.Exists(isoPath))
+            {
+                File.Delete(isoPath);
+            }
+
+            // Track entry names to handle duplicates
+            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            progressForm.StartProgress();
+
+            CDBuilder builder = new CDBuilder();
+            builder.UseJoliet = true;
+            builder.VolumeIdentifier = "ARCHIVE";
+
+            int totalFiles = _filePaths.Count;
+
+            for (int i = 0; i < totalFiles; i++)
+            {
+                // Check for cancellation
+                if (progressForm.CancelRequested)
+                {
+                    return false;
+                }
+
+                string filePath = _filePaths[i];
+
+                if (File.Exists(filePath))
+                {
+                    string entryName = Path.GetFileName(filePath);
+
+                    // Update progress
+                    progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+
+                    // Handle duplicate file names in archive
+                    string originalName = Path.GetFileNameWithoutExtension(entryName);
+                    string extension = Path.GetExtension(entryName);
+                    int counter = 1;
+
+                    while (usedEntryNames.Contains(entryName))
+                    {
+                        entryName = $"{originalName}_{counter}{extension}";
+                        counter++;
+                    }
+
+                    usedEntryNames.Add(entryName);
+                    builder.AddFile(entryName, filePath);
+                }
+            }
+
+            // Build and save the ISO
+            builder.Build(isoPath);
 
             return true;
         }
