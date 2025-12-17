@@ -1,6 +1,6 @@
 # Archiver
 
-A simple and user-friendly Windows desktop application for compressing files into ZIP archives. Built with .NET 8.0 and Windows Forms.
+A simple and user-friendly Windows desktop application for compressing and extracting archive files. Built with .NET 8.0 and Windows Forms.
 
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6)
@@ -8,6 +8,7 @@ A simple and user-friendly Windows desktop application for compressing files int
 
 ## Features
 
+### Compression
 - **File Selection**: Browse and select multiple files using a file dialog
 - **Drag & Drop**: Simply drag files onto the application window to add them
 - **Search/Filter**: Quickly filter your file list with the built-in search functionality
@@ -16,7 +17,13 @@ A simple and user-friendly Windows desktop application for compressing files int
 - **Duplicate Handling**: Automatically handles duplicate file names in archives
 - **Context Menu**: Right-click options for removing items, opening file locations, and more
 
-### Supported File Types
+### Extraction
+- **Multi-Format Support**: Extract various archive formats including ZIP, 7z, RAR, TAR, GZip, and more
+- **Archive Preview**: View contents of an archive before extracting
+- **Custom Output Folder**: Choose where to extract files
+- **Progress Tracking**: Visual progress bar during extraction
+
+### Supported File Types for Compression
 
 | Type | Extensions |
 |------|------------|
@@ -24,9 +31,26 @@ A simple and user-friendly Windows desktop application for compressing files int
 | Documents | `.pdf`, `.docx` |
 | Spreadsheets | `.xlsx`, `.xls` |
 
+### Supported Archive Formats for Extraction
+
+| Format | Extensions | Support Level |
+|--------|------------|---------------|
+| ZIP | `.zip` | Full |
+| 7-Zip | `.7z` | Full |
+| RAR | `.rar` | Full |
+| TAR | `.tar`, `.tar.gz`, `.tgz`, `.tar.bz2`, `.tbz2` | Full |
+| GZip | `.gz`, `.gzip` | Full |
+| BZip2 | `.bz2` | Full |
+| Cabinet | `.cab` | Full |
+| ISO | `.iso` | Full |
+| ARJ | `.arj` | Limited |
+| LZH | `.lzh` | Limited |
+| UUE | `.uue` | Limited |
+| ACE | `.ace` | Limited |
+
 ## Screenshots
 
-*Application main window with file list and compression controls*
+*Application home screen with compress and extract options*
 
 ## Installation
 
@@ -85,18 +109,34 @@ The output will be in `archiver/bin/Release/net8.0-windows/win-x64/publish/`
 
 ## Usage
 
-### Adding Files
+### Home Screen
 
-1. **Using the Add Button**: Click "Add" to open the file browser and select files
-2. **Drag and Drop**: Drag files directly onto the application window
+The application starts with a home screen where you can choose to:
+- **Compress**: Create ZIP archives from files
+- **Extract**: Extract files from various archive formats
+- **About**: View application information
+- **Exit**: Close the application
 
-### Creating an Archive
+### Compressing Files
 
-1. Add files using either method above
-2. Click "Browse" to select the output folder for your ZIP file
-3. (Optional) Enter a custom name in the archive name field
-4. Click "Compress" to create the ZIP archive
-5. Monitor progress in the progress dialog
+1. Click "Compress" from the home screen
+2. Add files using either method:
+   - **Add Button**: Click "Add" to open the file browser and select files
+   - **Drag and Drop**: Drag files directly onto the application window
+3. Click "Browse" to select the output folder for your ZIP file
+4. (Optional) Enter a custom name in the archive name field
+5. Click "Compress" to create the ZIP archive
+6. Monitor progress in the progress dialog
+
+### Extracting Archives
+
+1. Click "Extract" from the home screen
+2. Click "Add" to browse and select an archive file
+3. Preview the archive contents in the list
+4. Click "Browse" to select the output folder for extraction
+5. (Optional) Enter a custom folder name for extracted files
+6. Click "Extract" to extract the archive
+7. Monitor progress in the progress dialog
 
 ### Managing Files
 
@@ -109,16 +149,23 @@ The output will be in `archiver/bin/Release/net8.0-windows/win-x64/publish/`
 
 ```
 archiver/
-├── archiver.sln           # Solution file
-├── README.md              # This file
+├── archiver.sln              # Solution file
+├── README.md                 # This file
 └── archiver/
-    ├── archiver.csproj    # Project file
-    ├── Program.cs         # Application entry point
-    ├── Form1.cs           # Main form logic
-    ├── Form1.Designer.cs  # Main form UI designer
-    ├── Form1.resx         # Main form resources
-    ├── ProgressForm.cs    # Progress dialog
-    └── ProgressForm.resx  # Progress dialog resources
+    ├── archiver.csproj       # Project file
+    ├── Program.cs            # Application entry point
+    ├── Form1.cs              # Compress form logic
+    ├── Form1.Designer.cs     # Compress form UI designer
+    ├── Form1.resx            # Compress form resources
+    ├── Form2.cs              # Home form logic
+    ├── Form2.Designer.cs     # Home form UI designer
+    ├── Form2.resx            # Home form resources
+    ├── Form3.cs              # Extract form logic
+    ├── Form3.Designer.cs     # Extract form UI designer
+    ├── Form3.resx            # Extract form resources
+    ├── ProgressForm.cs       # Compression progress dialog
+    ├── ProgressForm.resx     # Progress dialog resources
+    └── ExtractProgressForm.cs # Extraction progress dialog
 ```
 
 ## Contributing
@@ -139,4 +186,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [.NET 8.0](https://dotnet.microsoft.com/)
 - Windows Forms for the user interface
-- System.IO.Compression for ZIP functionality
+- System.IO.Compression for ZIP compression
+- [SharpCompress](https://github.com/adamhathcock/sharpcompress) for multi-format archive extraction
+- Created by Jeyd0
