@@ -36,6 +36,8 @@
             zip_items = new ListBox();
             textBox1 = new TextBox();
             button1 = new Button();
+            panel1 = new Panel();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // button5
@@ -43,7 +45,7 @@
             button5.BackColor = Color.Silver;
             button5.Cursor = Cursors.Hand;
             button5.FlatStyle = FlatStyle.Popup;
-            button5.Location = new Point(974, 569);
+            button5.Location = new Point(203, 420);
             button5.Name = "button5";
             button5.Size = new Size(75, 23);
             button5.TabIndex = 18;
@@ -53,9 +55,10 @@
             // 
             // textBox3
             // 
+            textBox3.BackColor = SystemColors.Control;
             textBox3.BorderStyle = BorderStyle.None;
             textBox3.Font = new Font("Poppins", 9.75F);
-            textBox3.Location = new Point(790, 132);
+            textBox3.Location = new Point(19, 14);
             textBox3.Multiline = true;
             textBox3.Name = "textBox3";
             textBox3.PlaceholderText = "Extract name";
@@ -66,7 +69,7 @@
             // 
             textBox2.BorderStyle = BorderStyle.None;
             textBox2.Font = new Font("Poppins", 9.75F);
-            textBox2.Location = new Point(790, 176);
+            textBox2.Location = new Point(19, 58);
             textBox2.Multiline = true;
             textBox2.Name = "textBox2";
             textBox2.PlaceholderText = "Select where to save";
@@ -80,7 +83,7 @@
             button4.Cursor = Cursors.Hand;
             button4.FlatStyle = FlatStyle.Popup;
             button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(981, 172);
+            button4.Location = new Point(210, 54);
             button4.Name = "button4";
             button4.Size = new Size(68, 33);
             button4.TabIndex = 15;
@@ -93,7 +96,7 @@
             button3.Cursor = Cursors.Hand;
             button3.FlatStyle = FlatStyle.Popup;
             button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(790, 221);
+            button3.Location = new Point(19, 103);
             button3.Name = "button3";
             button3.Size = new Size(140, 33);
             button3.TabIndex = 14;
@@ -102,6 +105,7 @@
             // 
             // zip_items
             // 
+            zip_items.BackColor = SystemColors.Control;
             zip_items.BorderStyle = BorderStyle.None;
             zip_items.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             zip_items.FormattingEnabled = true;
@@ -138,25 +142,36 @@
             button1.Text = "Add";
             button1.UseVisualStyleBackColor = false;
             // 
+            // panel1
+            // 
+            panel1.BackColor = Color.Khaki;
+            panel1.Controls.Add(button5);
+            panel1.Controls.Add(button3);
+            panel1.Controls.Add(textBox3);
+            panel1.Controls.Add(button4);
+            panel1.Controls.Add(textBox2);
+            panel1.Location = new Point(775, 132);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(295, 460);
+            panel1.TabIndex = 19;
+            // 
             // extract
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(1082, 623);
-            Controls.Add(button5);
-            Controls.Add(textBox3);
-            Controls.Add(textBox2);
-            Controls.Add(button4);
-            Controls.Add(button3);
             Controls.Add(zip_items);
             Controls.Add(textBox1);
             Controls.Add(button1);
+            Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "extract";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "EXTRACT";
             Load += Form3_Load;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -171,5 +186,6 @@
         private ListBox zip_items;
         private TextBox textBox1;
         private Button button1;
+        private Panel panel1;
     }
 }

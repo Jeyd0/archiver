@@ -30,9 +30,11 @@
         {
             button1 = new Button();
             button2 = new Button();
-            textBox1 = new TextBox();
             button3 = new Button();
             button4 = new Button();
+            panel1 = new Panel();
+            label1 = new Label();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // button1
@@ -41,7 +43,7 @@
             button1.Cursor = Cursors.Hand;
             button1.FlatStyle = FlatStyle.Popup;
             button1.Font = new Font("Poppins", 9.75F);
-            button1.Location = new Point(134, 150);
+            button1.Location = new Point(98, 104);
             button1.Name = "button1";
             button1.Size = new Size(159, 51);
             button1.TabIndex = 0;
@@ -55,26 +57,13 @@
             button2.Cursor = Cursors.Hand;
             button2.FlatStyle = FlatStyle.Popup;
             button2.Font = new Font("Poppins", 9.75F);
-            button2.Location = new Point(134, 249);
+            button2.Location = new Point(98, 203);
             button2.Name = "button2";
             button2.Size = new Size(159, 51);
             button2.TabIndex = 1;
             button2.Text = "EXTRACT";
             button2.UseVisualStyleBackColor = false;
             button2.Click += button2_Click;
-            // 
-            // textBox1
-            // 
-            textBox1.BackColor = SystemColors.ActiveCaption;
-            textBox1.BorderStyle = BorderStyle.None;
-            textBox1.Font = new Font("Poppins", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            textBox1.Location = new Point(146, 72);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(134, 35);
-            textBox1.TabIndex = 2;
-            textBox1.Text = "WELCOME";
-            textBox1.TextAlign = HorizontalAlignment.Center;
             // 
             // button3
             // 
@@ -96,7 +85,7 @@
             button4.Cursor = Cursors.Hand;
             button4.FlatStyle = FlatStyle.Popup;
             button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(168, 316);
+            button4.Location = new Point(132, 270);
             button4.Name = "button4";
             button4.Size = new Size(86, 28);
             button4.TabIndex = 4;
@@ -104,32 +93,53 @@
             button4.UseVisualStyleBackColor = false;
             button4.Click += button4_Click;
             // 
+            // panel1
+            // 
+            panel1.BackColor = SystemColors.Info;
+            panel1.Controls.Add(label1);
+            panel1.Controls.Add(button4);
+            panel1.Controls.Add(button2);
+            panel1.Controls.Add(button1);
+            panel1.Location = new Point(36, 46);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(361, 357);
+            panel1.TabIndex = 5;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Poppins Medium", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(122, 35);
+            label1.Name = "label1";
+            label1.Size = new Size(116, 34);
+            label1.TabIndex = 6;
+            label1.Text = "WELCOME";
+            // 
             // home
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(435, 482);
-            Controls.Add(button4);
+            Controls.Add(panel1);
             Controls.Add(button3);
-            Controls.Add(textBox1);
-            Controls.Add(button2);
-            Controls.Add(button1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "home";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "HOME";
             Load += home_Load;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
         private Button button1;
         private Button button2;
-        private TextBox textBox1;
         private Button button3;
         private Button button4;
+        private Panel panel1;
+        private Label label1;
     }
 }

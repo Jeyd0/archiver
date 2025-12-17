@@ -39,6 +39,8 @@
             textBox4 = new TextBox();
             button5 = new Button();
             comboBox1 = new ComboBox();
+            panel1 = new Panel();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // button1
@@ -72,6 +74,7 @@
             // 
             // list_of_item_selected
             // 
+            list_of_item_selected.BackColor = SystemColors.Control;
             list_of_item_selected.BorderStyle = BorderStyle.None;
             list_of_item_selected.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             list_of_item_selected.FormattingEnabled = true;
@@ -88,7 +91,7 @@
             button2.Cursor = Cursors.Hand;
             button2.FlatStyle = FlatStyle.Popup;
             button2.Font = new Font("Poppins", 9.75F);
-            button2.Location = new Point(791, 132);
+            button2.Location = new Point(15, 22);
             button2.Name = "button2";
             button2.Size = new Size(140, 33);
             button2.TabIndex = 3;
@@ -101,7 +104,7 @@
             button3.Cursor = Cursors.Hand;
             button3.FlatStyle = FlatStyle.Popup;
             button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(791, 318);
+            button3.Location = new Point(15, 208);
             button3.Name = "button3";
             button3.Size = new Size(140, 33);
             button3.TabIndex = 5;
@@ -114,7 +117,7 @@
             button4.Cursor = Cursors.Hand;
             button4.FlatStyle = FlatStyle.Popup;
             button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(984, 271);
+            button4.Location = new Point(208, 161);
             button4.Name = "button4";
             button4.Size = new Size(68, 33);
             button4.TabIndex = 6;
@@ -126,7 +129,7 @@
             // 
             textBox2.BorderStyle = BorderStyle.None;
             textBox2.Font = new Font("Poppins", 9.75F);
-            textBox2.Location = new Point(791, 274);
+            textBox2.Location = new Point(15, 164);
             textBox2.Multiline = true;
             textBox2.Name = "textBox2";
             textBox2.PlaceholderText = "Select where to save";
@@ -136,9 +139,10 @@
             // 
             // textBox3
             // 
+            textBox3.BackColor = SystemColors.Control;
             textBox3.BorderStyle = BorderStyle.None;
             textBox3.Font = new Font("Poppins", 9.75F);
-            textBox3.Location = new Point(791, 227);
+            textBox3.Location = new Point(15, 117);
             textBox3.Multiline = true;
             textBox3.Name = "textBox3";
             textBox3.PlaceholderText = "Zip Name";
@@ -147,6 +151,7 @@
             // 
             // textBox4
             // 
+            textBox4.BackColor = SystemColors.Control;
             textBox4.BorderStyle = BorderStyle.None;
             textBox4.Font = new Font("Poppins", 9.75F);
             textBox4.Location = new Point(208, 94);
@@ -162,7 +167,7 @@
             button5.BackColor = Color.Silver;
             button5.Cursor = Cursors.Hand;
             button5.FlatStyle = FlatStyle.Popup;
-            button5.Location = new Point(977, 569);
+            button5.Location = new Point(201, 423);
             button5.Name = "button5";
             button5.Size = new Size(75, 23);
             button5.TabIndex = 10;
@@ -172,15 +177,31 @@
             // 
             // comboBox1
             // 
+            comboBox1.BackColor = SystemColors.Control;
             comboBox1.FlatStyle = FlatStyle.Popup;
             comboBox1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "Zip", "Tar", "ISO", "GZip", "BZip2", "LZip" });
-            comboBox1.Location = new Point(791, 180);
+            comboBox1.Items.AddRange(new object[] { "Select type", "Zip", "Tar", "ISO", "GZip", "BZip2", "LZip" });
+            comboBox1.Location = new Point(15, 70);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(140, 31);
             comboBox1.TabIndex = 11;
             comboBox1.Text = "Select type";
+            // 
+            // panel1
+            // 
+            panel1.BackColor = Color.Khaki;
+            panel1.Controls.Add(button5);
+            panel1.Controls.Add(comboBox1);
+            panel1.Controls.Add(button2);
+            panel1.Controls.Add(button3);
+            panel1.Controls.Add(textBox3);
+            panel1.Controls.Add(button4);
+            panel1.Controls.Add(textBox2);
+            panel1.Location = new Point(782, 132);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(288, 460);
+            panel1.TabIndex = 12;
             // 
             // compress
             // 
@@ -188,17 +209,11 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(1082, 623);
-            Controls.Add(comboBox1);
-            Controls.Add(button5);
             Controls.Add(textBox4);
-            Controls.Add(textBox3);
-            Controls.Add(textBox2);
-            Controls.Add(button4);
-            Controls.Add(button3);
-            Controls.Add(button2);
             Controls.Add(list_of_item_selected);
             Controls.Add(textBox1);
             Controls.Add(button1);
+            Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "compress";
             RightToLeft = RightToLeft.No;
@@ -206,6 +221,8 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "COMPRESS";
             Load += Form1_Load;
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -223,5 +240,6 @@
         private TextBox textBox4;
         private Button button5;
         private ComboBox comboBox1;
+        private Panel panel1;
     }
 }
