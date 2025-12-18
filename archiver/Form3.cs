@@ -63,12 +63,12 @@ namespace archiver
         private void Form3_Load(object sender, EventArgs e)
         {
             // Wire up button click events
-            button1.Click += button1_Click;
-            button3.Click += button3_Click;
-            button4.Click += button4_Click;
+            add_btn.Click += button1_Click;
+            extract_btn.Click += button3_Click;
+            brws_btn.Click += button4_Click;
 
             // Set default extract folder name
-            textBox3.Text = $"extracted_{DateTime.Now:yyyyMMdd}";
+            extractName.Text = $"extracted_{DateTime.Now:yyyyMMdd}";
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace archiver
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     _archiveFilePath = openFileDialog.FileName;
-                    textBox1.Text = Path.GetFileName(_archiveFilePath);
+                    insert.Text = Path.GetFileName(_archiveFilePath);
                     
                     // Load and display archive contents
                     LoadArchiveContents();
@@ -225,7 +225,7 @@ namespace archiver
                 MessageBox.Show($"Error reading archive file: {ex.Message}\n\n{errorMessage}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _archiveFilePath = string.Empty;
-                textBox1.Text = string.Empty;
+                insert.Text = string.Empty;
             }
         }
 
@@ -251,7 +251,7 @@ namespace archiver
                 MessageBox.Show($"Error reading ISO file: {ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _archiveFilePath = string.Empty;
-                textBox1.Text = string.Empty;
+                insert.Text = string.Empty;
             }
         }
 
@@ -346,7 +346,7 @@ namespace archiver
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     _outputFolderPath = folderDialog.SelectedPath;
-                    textBox2.Text = _outputFolderPath;
+                    selectSave.Text = _outputFolderPath;
                 }
             }
         }
@@ -370,7 +370,7 @@ namespace archiver
                 MessageBox.Show("The selected archive file no longer exists.",
                     "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 _archiveFilePath = string.Empty;
-                textBox1.Text = string.Empty;
+                insert.Text = string.Empty;
                 zip_items.Items.Clear();
                 return;
             }
@@ -398,7 +398,7 @@ namespace archiver
                 MessageBox.Show("The selected output folder no longer exists. Please select a new location.",
                     "Folder Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 _outputFolderPath = string.Empty;
-                textBox2.Text = string.Empty;
+                selectSave.Text = string.Empty;
                 return;
             }
 
@@ -647,7 +647,7 @@ namespace archiver
         /// </summary>
         private string GetExtractFolderName()
         {
-            string folderName = textBox3.Text.Trim();
+            string folderName = extractName.Text.Trim();
 
             // If empty, use archive file name without extension
             if (string.IsNullOrEmpty(folderName))

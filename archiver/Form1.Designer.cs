@@ -28,49 +28,54 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
-            textBox1 = new TextBox();
+            add_btn = new Button();
+            insertfile = new TextBox();
             list_of_item_selected = new ListBox();
-            button2 = new Button();
-            button3 = new Button();
-            button4 = new Button();
-            textBox2 = new TextBox();
-            textBox3 = new TextBox();
-            textBox4 = new TextBox();
-            button5 = new Button();
-            comboBox1 = new ComboBox();
+            clear_btn = new Button();
+            compress_btn = new Button();
+            brws_btn = new Button();
+            selectSave = new TextBox();
+            zipname = new TextBox();
+            search = new TextBox();
+            back_btn = new Button();
+            type = new ComboBox();
             panel1 = new Panel();
+            password = new TextBox();
+            label4 = new Label();
+            label3 = new Label();
+            label2 = new Label();
+            label1 = new Label();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // button1
+            // add_btn
             // 
-            button1.BackColor = Color.Silver;
-            button1.BackgroundImageLayout = ImageLayout.None;
-            button1.Cursor = Cursors.Hand;
-            button1.FlatStyle = FlatStyle.Popup;
-            button1.Font = new Font("Poppins", 9.75F);
-            button1.Location = new Point(559, 22);
-            button1.Name = "button1";
-            button1.Size = new Size(140, 33);
-            button1.TabIndex = 0;
-            button1.Text = "Add";
-            button1.UseVisualStyleBackColor = false;
-            button1.Click += button1_Click_1;
+            add_btn.BackColor = Color.Silver;
+            add_btn.BackgroundImageLayout = ImageLayout.None;
+            add_btn.Cursor = Cursors.Hand;
+            add_btn.FlatStyle = FlatStyle.Popup;
+            add_btn.Font = new Font("Poppins", 9.75F);
+            add_btn.Location = new Point(559, 22);
+            add_btn.Name = "add_btn";
+            add_btn.Size = new Size(140, 33);
+            add_btn.TabIndex = 0;
+            add_btn.Text = "Add";
+            add_btn.UseVisualStyleBackColor = false;
+            add_btn.Click += button1_Click_1;
             // 
-            // textBox1
+            // insertfile
             // 
-            textBox1.BorderStyle = BorderStyle.None;
-            textBox1.Font = new Font("Poppins", 9.75F);
-            textBox1.Location = new Point(185, 15);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.PlaceholderText = "Insert file(jpg,png,pdf,docx,excel)";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new Size(368, 48);
-            textBox1.TabIndex = 1;
-            textBox1.TextAlign = HorizontalAlignment.Center;
-            textBox1.TextChanged += textBox1_TextChanged;
+            insertfile.BorderStyle = BorderStyle.None;
+            insertfile.Font = new Font("Poppins", 9.75F);
+            insertfile.Location = new Point(185, 15);
+            insertfile.Multiline = true;
+            insertfile.Name = "insertfile";
+            insertfile.PlaceholderText = "Insert file(jpg,png,pdf,docx,excel)";
+            insertfile.ReadOnly = true;
+            insertfile.Size = new Size(368, 48);
+            insertfile.TabIndex = 1;
+            insertfile.TextAlign = HorizontalAlignment.Center;
+            insertfile.TextChanged += textBox1_TextChanged;
             // 
             // list_of_item_selected
             // 
@@ -85,123 +90,188 @@
             list_of_item_selected.TabIndex = 2;
             list_of_item_selected.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
-            // button2
+            // clear_btn
             // 
-            button2.BackColor = Color.Silver;
-            button2.Cursor = Cursors.Hand;
-            button2.FlatStyle = FlatStyle.Popup;
-            button2.Font = new Font("Poppins", 9.75F);
-            button2.Location = new Point(15, 22);
-            button2.Name = "button2";
-            button2.Size = new Size(140, 33);
-            button2.TabIndex = 3;
-            button2.Text = "Clear all";
-            button2.UseVisualStyleBackColor = false;
+            clear_btn.BackColor = Color.Silver;
+            clear_btn.Cursor = Cursors.Hand;
+            clear_btn.FlatStyle = FlatStyle.Popup;
+            clear_btn.Font = new Font("Poppins", 9.75F);
+            clear_btn.Location = new Point(15, 22);
+            clear_btn.Name = "clear_btn";
+            clear_btn.Size = new Size(140, 33);
+            clear_btn.TabIndex = 3;
+            clear_btn.Text = "Clear all";
+            clear_btn.UseVisualStyleBackColor = false;
             // 
-            // button3
+            // compress_btn
             // 
-            button3.BackColor = Color.Silver;
-            button3.Cursor = Cursors.Hand;
-            button3.FlatStyle = FlatStyle.Popup;
-            button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(15, 208);
-            button3.Name = "button3";
-            button3.Size = new Size(140, 33);
-            button3.TabIndex = 5;
-            button3.Text = "Compress";
-            button3.UseVisualStyleBackColor = false;
+            compress_btn.BackColor = Color.Silver;
+            compress_btn.Cursor = Cursors.Hand;
+            compress_btn.FlatStyle = FlatStyle.Popup;
+            compress_btn.Font = new Font("Poppins", 9.75F);
+            compress_btn.Location = new Point(15, 302);
+            compress_btn.Name = "compress_btn";
+            compress_btn.Size = new Size(140, 33);
+            compress_btn.TabIndex = 5;
+            compress_btn.Text = "Compress";
+            compress_btn.UseVisualStyleBackColor = false;
+            compress_btn.Click += compress_btn_Click;
             // 
-            // button4
+            // brws_btn
             // 
-            button4.BackColor = Color.Silver;
-            button4.Cursor = Cursors.Hand;
-            button4.FlatStyle = FlatStyle.Popup;
-            button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(208, 161);
-            button4.Name = "button4";
-            button4.Size = new Size(68, 33);
-            button4.TabIndex = 6;
-            button4.Text = "Browse";
-            button4.UseVisualStyleBackColor = false;
-            button4.Click += button4_Click;
+            brws_btn.BackColor = Color.Silver;
+            brws_btn.Cursor = Cursors.Hand;
+            brws_btn.FlatStyle = FlatStyle.Popup;
+            brws_btn.Font = new Font("Poppins", 9.75F);
+            brws_btn.Location = new Point(206, 252);
+            brws_btn.Name = "brws_btn";
+            brws_btn.Size = new Size(68, 33);
+            brws_btn.TabIndex = 6;
+            brws_btn.Text = "Browse";
+            brws_btn.UseVisualStyleBackColor = false;
+            brws_btn.Click += button4_Click;
             // 
-            // textBox2
+            // selectSave
             // 
-            textBox2.BorderStyle = BorderStyle.None;
-            textBox2.Font = new Font("Poppins", 9.75F);
-            textBox2.Location = new Point(15, 164);
-            textBox2.Multiline = true;
-            textBox2.Name = "textBox2";
-            textBox2.PlaceholderText = "Select where to save";
-            textBox2.ReadOnly = true;
-            textBox2.Size = new Size(184, 26);
-            textBox2.TabIndex = 7;
+            selectSave.BorderStyle = BorderStyle.None;
+            selectSave.Font = new Font("Poppins", 9.75F);
+            selectSave.Location = new Point(15, 254);
+            selectSave.Multiline = true;
+            selectSave.Name = "selectSave";
+            selectSave.PlaceholderText = "Select where to save";
+            selectSave.ReadOnly = true;
+            selectSave.Size = new Size(184, 26);
+            selectSave.TabIndex = 7;
             // 
-            // textBox3
+            // zipname
             // 
-            textBox3.BackColor = SystemColors.Control;
-            textBox3.BorderStyle = BorderStyle.None;
-            textBox3.Font = new Font("Poppins", 9.75F);
-            textBox3.Location = new Point(15, 117);
-            textBox3.Multiline = true;
-            textBox3.Name = "textBox3";
-            textBox3.PlaceholderText = "Zip Name";
-            textBox3.Size = new Size(184, 26);
-            textBox3.TabIndex = 8;
+            zipname.BackColor = SystemColors.Control;
+            zipname.BorderStyle = BorderStyle.None;
+            zipname.Font = new Font("Poppins", 9.75F);
+            zipname.Location = new Point(15, 198);
+            zipname.Multiline = true;
+            zipname.Name = "zipname";
+            zipname.PlaceholderText = "Zip Name";
+            zipname.Size = new Size(184, 26);
+            zipname.TabIndex = 8;
             // 
-            // textBox4
+            // search
             // 
-            textBox4.BackColor = SystemColors.Control;
-            textBox4.BorderStyle = BorderStyle.None;
-            textBox4.Font = new Font("Poppins", 9.75F);
-            textBox4.Location = new Point(208, 94);
-            textBox4.Multiline = true;
-            textBox4.Name = "textBox4";
-            textBox4.PlaceholderText = "Search file";
-            textBox4.Size = new Size(318, 32);
-            textBox4.TabIndex = 9;
-            textBox4.TextAlign = HorizontalAlignment.Center;
+            search.BackColor = SystemColors.Control;
+            search.BorderStyle = BorderStyle.None;
+            search.Font = new Font("Poppins", 9.75F);
+            search.Location = new Point(208, 94);
+            search.Multiline = true;
+            search.Name = "search";
+            search.PlaceholderText = "Search file";
+            search.Size = new Size(318, 32);
+            search.TabIndex = 9;
+            search.TextAlign = HorizontalAlignment.Center;
             // 
-            // button5
+            // back_btn
             // 
-            button5.BackColor = Color.Silver;
-            button5.Cursor = Cursors.Hand;
-            button5.FlatStyle = FlatStyle.Popup;
-            button5.Location = new Point(201, 423);
-            button5.Name = "button5";
-            button5.Size = new Size(75, 23);
-            button5.TabIndex = 10;
-            button5.Text = "Back";
-            button5.UseVisualStyleBackColor = false;
-            button5.Click += button5_Click;
+            back_btn.BackColor = Color.Silver;
+            back_btn.Cursor = Cursors.Hand;
+            back_btn.FlatStyle = FlatStyle.Popup;
+            back_btn.Location = new Point(206, 424);
+            back_btn.Name = "back_btn";
+            back_btn.Size = new Size(75, 23);
+            back_btn.TabIndex = 10;
+            back_btn.Text = "Back";
+            back_btn.UseVisualStyleBackColor = false;
+            back_btn.Click += button5_Click;
             // 
-            // comboBox1
+            // type
             // 
-            comboBox1.BackColor = SystemColors.Control;
-            comboBox1.FlatStyle = FlatStyle.Popup;
-            comboBox1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "Select type", "Zip", "Tar", "ISO", "GZip", "BZip2", "LZip" });
-            comboBox1.Location = new Point(15, 70);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(140, 31);
-            comboBox1.TabIndex = 11;
-            comboBox1.Text = "Select type";
+            type.BackColor = SystemColors.Control;
+            type.FlatStyle = FlatStyle.Popup;
+            type.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            type.FormattingEnabled = true;
+            type.Items.AddRange(new object[] { "Select type", "Zip", "Tar", "ISO", "GZip", "BZip2", "LZip" });
+            type.Location = new Point(15, 80);
+            type.Name = "type";
+            type.Size = new Size(140, 31);
+            type.TabIndex = 11;
+            type.Text = "Select type";
             // 
             // panel1
             // 
             panel1.BackColor = Color.Khaki;
-            panel1.Controls.Add(button5);
-            panel1.Controls.Add(comboBox1);
-            panel1.Controls.Add(button2);
-            panel1.Controls.Add(button3);
-            panel1.Controls.Add(textBox3);
-            panel1.Controls.Add(button4);
-            panel1.Controls.Add(textBox2);
+            panel1.Controls.Add(password);
+            panel1.Controls.Add(back_btn);
+            panel1.Controls.Add(type);
+            panel1.Controls.Add(clear_btn);
+            panel1.Controls.Add(compress_btn);
+            panel1.Controls.Add(zipname);
+            panel1.Controls.Add(brws_btn);
+            panel1.Controls.Add(selectSave);
+            panel1.Controls.Add(label4);
+            panel1.Controls.Add(label3);
+            panel1.Controls.Add(label2);
+            panel1.Controls.Add(label1);
             panel1.Location = new Point(782, 132);
             panel1.Name = "panel1";
             panel1.Size = new Size(288, 460);
             panel1.TabIndex = 12;
+            panel1.Paint += panel1_Paint;
+            // 
+            // password
+            // 
+            password.BackColor = SystemColors.Control;
+            password.BorderStyle = BorderStyle.None;
+            password.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            password.Location = new Point(15, 142);
+            password.Multiline = true;
+            password.Name = "password";
+            password.PlaceholderText = "Optional";
+            password.Size = new Size(184, 26);
+            password.TabIndex = 12;
+            password.UseSystemPasswordChar = true;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.BackColor = Color.Transparent;
+            label4.FlatStyle = FlatStyle.Popup;
+            label4.Font = new Font("Poppins", 9.75F);
+            label4.Location = new Point(15, 235);
+            label4.Name = "label4";
+            label4.Size = new Size(42, 23);
+            label4.TabIndex = 16;
+            label4.Text = "Save";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.BackColor = Color.Transparent;
+            label3.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.Location = new Point(9, 59);
+            label3.Name = "label3";
+            label3.Size = new Size(41, 23);
+            label3.TabIndex = 15;
+            label3.Text = "Type";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.BackColor = Color.Transparent;
+            label2.Font = new Font("Poppins", 9.75F);
+            label2.Location = new Point(12, 179);
+            label2.Name = "label2";
+            label2.Size = new Size(49, 23);
+            label2.TabIndex = 14;
+            label2.Text = "Name";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.BackColor = Color.Transparent;
+            label1.Font = new Font("Poppins", 9.75F);
+            label1.Location = new Point(11, 122);
+            label1.Name = "label1";
+            label1.Size = new Size(74, 23);
+            label1.TabIndex = 13;
+            label1.Text = "Password";
             // 
             // compress
             // 
@@ -209,10 +279,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(1082, 623);
-            Controls.Add(textBox4);
+            Controls.Add(search);
             Controls.Add(list_of_item_selected);
-            Controls.Add(textBox1);
-            Controls.Add(button1);
+            Controls.Add(insertfile);
+            Controls.Add(add_btn);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "compress";
@@ -228,17 +298,22 @@
 
         #endregion
 
-        private Button button1;
-        private TextBox textBox1;
+        private Button add_btn;
+        private TextBox insertfile;
         private ListBox list_of_item_selected;
-        private Button button2;
-        private Button button3;
-        private Button button4;
-        private TextBox textBox2;
-        private TextBox textBox3;
-        private TextBox textBox4;
-        private Button button5;
-        private ComboBox comboBox1;
+        private Button clear_btn;
+        private Button compress_btn;
+        private Button brws_btn;
+        private TextBox selectSave;
+        private TextBox zipname;
+        private TextBox search;
+        private Button back_btn;
+        private ComboBox type;
         private Panel panel1;
+        private TextBox password;
+        private Label label4;
+        private Label label3;
+        private Label label2;
+        private Label label1;
     }
 }

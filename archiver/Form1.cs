@@ -33,14 +33,14 @@ namespace archiver
         private void Form1_Load(object sender, EventArgs e)
         {
             // Wire up button click events
-            button2.Click += Button2_Click;
-            button3.Click += Button3_Click;
+            clear_btn.Click += Button2_Click;
+            compress_btn.Click += Button3_Click;
 
             // Wire up search textbox event
-            textBox4.TextChanged += TextBox4_TextChanged;
+            search.TextChanged += TextBox4_TextChanged;
 
             // Wire up combobox event
-            comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
+            type.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
 
             // Set up context menu for list box
             SetupContextMenu();
@@ -51,10 +51,10 @@ namespace archiver
             this.DragDrop += Home_DragDrop;
 
             // Set default zip name
-            textBox3.Text = $"archive_{DateTime.Now:yyyyMMdd}";
+            zipname.Text = $"archive_{DateTime.Now:yyyyMMdd}";
 
             // Set default selection for combobox
-            comboBox1.SelectedIndex = 0; // Default to Zip
+            type.SelectedIndex = 0; // Default to Zip
         }
 
         /// <summary>
@@ -62,9 +62,9 @@ namespace archiver
         /// </summary>
         private void ComboBox1_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex >= 0)
+            if (type.SelectedIndex >= 0)
             {
-                _selectedArchiveFormat = comboBox1.SelectedItem?.ToString() ?? "Zip";
+                _selectedArchiveFormat = type.SelectedItem?.ToString() ?? "Zip";
                 UpdateArchiveNameExtension();
             }
         }
@@ -74,8 +74,8 @@ namespace archiver
         /// </summary>
         private void UpdateArchiveNameExtension()
         {
-            string currentName = textBox3.Text.Trim();
-            
+            string currentName = zipname.Text.Trim();
+
             // Remove existing extension if present
             string[] knownExtensions = { ".zip", ".tar", ".iso", ".gz", ".bz2", ".lz" };
             foreach (string ext in knownExtensions)
@@ -88,7 +88,7 @@ namespace archiver
             }
 
             // The extension will be added when compressing, so just keep the base name
-            textBox3.Text = currentName;
+            zipname.Text = currentName;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace archiver
         /// </summary>
         private void FilterFileList()
         {
-            string searchText = textBox4.Text.Trim().ToLower();
+            string searchText = search.Text.Trim().ToLower();
 
             // Clear the listbox
             list_of_item_selected.Items.Clear();
@@ -216,7 +216,7 @@ namespace archiver
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     _outputFolderPath = folderDialog.SelectedPath;
-                    textBox2.Text = _outputFolderPath;
+                    selectSave.Text = _outputFolderPath;
                 }
             }
         }
@@ -448,7 +448,7 @@ namespace archiver
                 {
                     _filePaths.Clear();
                     list_of_item_selected.Items.Clear();
-                    textBox4.Clear(); // Clear search text
+                    search.Clear(); // Clear search text
                     UpdateStatusText();
                 }
             }
@@ -459,7 +459,7 @@ namespace archiver
         /// </summary>
         private string GetZipFileName()
         {
-            string zipName = textBox3.Text.Trim();
+            string zipName = zipname.Text.Trim();
 
             // If empty, generate default name
             if (string.IsNullOrEmpty(zipName))
@@ -516,7 +516,7 @@ namespace archiver
                 MessageBox.Show("The selected output folder no longer exists. Please select a new location.",
                     "Folder Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 _outputFolderPath = string.Empty;
-                textBox2.Text = string.Empty;
+                selectSave.Text = string.Empty;
                 return;
             }
 
@@ -925,11 +925,11 @@ namespace archiver
             if (_filePaths.Count > 0)
             {
                 long totalSize = GetTotalFileSize();
-                textBox1.Text = $"{_filePaths.Count} file(s) selected - Total: {FormatFileSize(totalSize)}";
+                insertfile.Text = $"{_filePaths.Count} file(s) selected - Total: {FormatFileSize(totalSize)}";
             }
             else
             {
-                textBox1.Text = string.Empty;
+                insertfile.Text = string.Empty;
             }
         }
 
@@ -966,7 +966,7 @@ namespace archiver
         /// </summary>
         private void ClearSearch()
         {
-            textBox4.Clear();
+            search.Clear();
         }
 
         /// <summary>
@@ -1118,6 +1118,16 @@ namespace archiver
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void compress_btn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
         }

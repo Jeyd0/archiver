@@ -28,80 +28,80 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button5 = new Button();
-            textBox3 = new TextBox();
-            textBox2 = new TextBox();
-            button4 = new Button();
-            button3 = new Button();
+            back_btn = new Button();
+            extractName = new TextBox();
+            selectSave = new TextBox();
+            brws_btn = new Button();
+            extract_btn = new Button();
             zip_items = new ListBox();
-            textBox1 = new TextBox();
-            button1 = new Button();
+            insert = new TextBox();
+            add_btn = new Button();
             panel1 = new Panel();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // button5
+            // back_btn
             // 
-            button5.BackColor = Color.Silver;
-            button5.Cursor = Cursors.Hand;
-            button5.FlatStyle = FlatStyle.Popup;
-            button5.Location = new Point(203, 420);
-            button5.Name = "button5";
-            button5.Size = new Size(75, 23);
-            button5.TabIndex = 18;
-            button5.Text = "Back";
-            button5.UseVisualStyleBackColor = false;
-            button5.Click += button5_Click;
+            back_btn.BackColor = Color.Silver;
+            back_btn.Cursor = Cursors.Hand;
+            back_btn.FlatStyle = FlatStyle.Popup;
+            back_btn.Location = new Point(203, 420);
+            back_btn.Name = "back_btn";
+            back_btn.Size = new Size(75, 23);
+            back_btn.TabIndex = 18;
+            back_btn.Text = "Back";
+            back_btn.UseVisualStyleBackColor = false;
+            back_btn.Click += button5_Click;
             // 
-            // textBox3
+            // extractName
             // 
-            textBox3.BackColor = SystemColors.Control;
-            textBox3.BorderStyle = BorderStyle.None;
-            textBox3.Font = new Font("Poppins", 9.75F);
-            textBox3.Location = new Point(19, 14);
-            textBox3.Multiline = true;
-            textBox3.Name = "textBox3";
-            textBox3.PlaceholderText = "Extract name";
-            textBox3.Size = new Size(184, 26);
-            textBox3.TabIndex = 17;
+            extractName.BackColor = SystemColors.Control;
+            extractName.BorderStyle = BorderStyle.None;
+            extractName.Font = new Font("Poppins", 9.75F);
+            extractName.Location = new Point(19, 14);
+            extractName.Multiline = true;
+            extractName.Name = "extractName";
+            extractName.PlaceholderText = "Extract name";
+            extractName.Size = new Size(184, 26);
+            extractName.TabIndex = 17;
             // 
-            // textBox2
+            // selectSave
             // 
-            textBox2.BorderStyle = BorderStyle.None;
-            textBox2.Font = new Font("Poppins", 9.75F);
-            textBox2.Location = new Point(19, 58);
-            textBox2.Multiline = true;
-            textBox2.Name = "textBox2";
-            textBox2.PlaceholderText = "Select where to save";
-            textBox2.ReadOnly = true;
-            textBox2.Size = new Size(184, 26);
-            textBox2.TabIndex = 16;
+            selectSave.BorderStyle = BorderStyle.None;
+            selectSave.Font = new Font("Poppins", 9.75F);
+            selectSave.Location = new Point(19, 58);
+            selectSave.Multiline = true;
+            selectSave.Name = "selectSave";
+            selectSave.PlaceholderText = "Select where to save";
+            selectSave.ReadOnly = true;
+            selectSave.Size = new Size(184, 26);
+            selectSave.TabIndex = 16;
             // 
-            // button4
+            // brws_btn
             // 
-            button4.BackColor = Color.Silver;
-            button4.Cursor = Cursors.Hand;
-            button4.FlatStyle = FlatStyle.Popup;
-            button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(210, 54);
-            button4.Name = "button4";
-            button4.Size = new Size(68, 33);
-            button4.TabIndex = 15;
-            button4.Text = "Browse";
-            button4.UseVisualStyleBackColor = false;
+            brws_btn.BackColor = Color.Silver;
+            brws_btn.Cursor = Cursors.Hand;
+            brws_btn.FlatStyle = FlatStyle.Popup;
+            brws_btn.Font = new Font("Poppins", 9.75F);
+            brws_btn.Location = new Point(210, 54);
+            brws_btn.Name = "brws_btn";
+            brws_btn.Size = new Size(68, 33);
+            brws_btn.TabIndex = 15;
+            brws_btn.Text = "Browse";
+            brws_btn.UseVisualStyleBackColor = false;
             // 
-            // button3
+            // extract_btn
             // 
-            button3.BackColor = Color.Silver;
-            button3.Cursor = Cursors.Hand;
-            button3.FlatStyle = FlatStyle.Popup;
-            button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(19, 103);
-            button3.Name = "button3";
-            button3.Size = new Size(140, 33);
-            button3.TabIndex = 14;
-            button3.Text = "Extract";
-            button3.UseVisualStyleBackColor = false;
+            extract_btn.BackColor = Color.Silver;
+            extract_btn.Cursor = Cursors.Hand;
+            extract_btn.FlatStyle = FlatStyle.Popup;
+            extract_btn.Font = new Font("Poppins", 9.75F);
+            extract_btn.Location = new Point(19, 103);
+            extract_btn.Name = "extract_btn";
+            extract_btn.Size = new Size(140, 33);
+            extract_btn.TabIndex = 14;
+            extract_btn.Text = "Extract";
+            extract_btn.UseVisualStyleBackColor = false;
             // 
             // zip_items
             // 
@@ -115,41 +115,41 @@
             zip_items.Size = new Size(740, 460);
             zip_items.TabIndex = 13;
             // 
-            // textBox1
+            // insert
             // 
-            textBox1.BorderStyle = BorderStyle.None;
-            textBox1.Font = new Font("Poppins", 9.75F);
-            textBox1.Location = new Point(200, 32);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.PlaceholderText = "Insert file to extarct";
-            textBox1.ReadOnly = true;
-            textBox1.Size = new Size(368, 48);
-            textBox1.TabIndex = 12;
-            textBox1.TextAlign = HorizontalAlignment.Center;
+            insert.BorderStyle = BorderStyle.None;
+            insert.Font = new Font("Poppins", 9.75F);
+            insert.Location = new Point(200, 32);
+            insert.Multiline = true;
+            insert.Name = "insert";
+            insert.PlaceholderText = "Insert file to extarct";
+            insert.ReadOnly = true;
+            insert.Size = new Size(368, 48);
+            insert.TabIndex = 12;
+            insert.TextAlign = HorizontalAlignment.Center;
             // 
-            // button1
+            // add_btn
             // 
-            button1.BackColor = Color.Silver;
-            button1.BackgroundImageLayout = ImageLayout.None;
-            button1.Cursor = Cursors.Hand;
-            button1.FlatStyle = FlatStyle.Popup;
-            button1.Font = new Font("Poppins", 9.75F);
-            button1.Location = new Point(585, 41);
-            button1.Name = "button1";
-            button1.Size = new Size(140, 33);
-            button1.TabIndex = 11;
-            button1.Text = "Add";
-            button1.UseVisualStyleBackColor = false;
+            add_btn.BackColor = Color.Silver;
+            add_btn.BackgroundImageLayout = ImageLayout.None;
+            add_btn.Cursor = Cursors.Hand;
+            add_btn.FlatStyle = FlatStyle.Popup;
+            add_btn.Font = new Font("Poppins", 9.75F);
+            add_btn.Location = new Point(585, 41);
+            add_btn.Name = "add_btn";
+            add_btn.Size = new Size(140, 33);
+            add_btn.TabIndex = 11;
+            add_btn.Text = "Add";
+            add_btn.UseVisualStyleBackColor = false;
             // 
             // panel1
             // 
             panel1.BackColor = Color.Khaki;
-            panel1.Controls.Add(button5);
-            panel1.Controls.Add(button3);
-            panel1.Controls.Add(textBox3);
-            panel1.Controls.Add(button4);
-            panel1.Controls.Add(textBox2);
+            panel1.Controls.Add(back_btn);
+            panel1.Controls.Add(extract_btn);
+            panel1.Controls.Add(extractName);
+            panel1.Controls.Add(brws_btn);
+            panel1.Controls.Add(selectSave);
             panel1.Location = new Point(775, 132);
             panel1.Name = "panel1";
             panel1.Size = new Size(295, 460);
@@ -162,8 +162,8 @@
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(1082, 623);
             Controls.Add(zip_items);
-            Controls.Add(textBox1);
-            Controls.Add(button1);
+            Controls.Add(insert);
+            Controls.Add(add_btn);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "extract";
@@ -178,14 +178,14 @@
 
         #endregion
 
-        private Button button5;
-        private TextBox textBox3;
-        private TextBox textBox2;
-        private Button button4;
-        private Button button3;
+        private Button back_btn;
+        private TextBox extractName;
+        private TextBox selectSave;
+        private Button brws_btn;
+        private Button extract_btn;
         private ListBox zip_items;
-        private TextBox textBox1;
-        private Button button1;
+        private TextBox insert;
+        private Button add_btn;
         private Panel panel1;
     }
 }

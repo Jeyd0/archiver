@@ -28,79 +28,79 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
-            button4 = new Button();
+            compress_btn = new Button();
+            extract_btn = new Button();
+            about_btn = new Button();
+            exit_btn = new Button();
             panel1 = new Panel();
             label1 = new Label();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
-            // button1
+            // compress_btn
             // 
-            button1.BackColor = Color.Silver;
-            button1.Cursor = Cursors.Hand;
-            button1.FlatStyle = FlatStyle.Popup;
-            button1.Font = new Font("Poppins", 9.75F);
-            button1.Location = new Point(98, 104);
-            button1.Name = "button1";
-            button1.Size = new Size(159, 51);
-            button1.TabIndex = 0;
-            button1.Text = "COMPRESS";
-            button1.UseVisualStyleBackColor = false;
-            button1.Click += button1_Click;
+            compress_btn.BackColor = Color.Silver;
+            compress_btn.Cursor = Cursors.Hand;
+            compress_btn.FlatStyle = FlatStyle.Popup;
+            compress_btn.Font = new Font("Poppins", 9.75F);
+            compress_btn.Location = new Point(98, 104);
+            compress_btn.Name = "compress_btn";
+            compress_btn.Size = new Size(159, 51);
+            compress_btn.TabIndex = 0;
+            compress_btn.Text = "COMPRESS";
+            compress_btn.UseVisualStyleBackColor = false;
+            compress_btn.Click += button1_Click;
             // 
-            // button2
+            // extract_btn
             // 
-            button2.BackColor = Color.Silver;
-            button2.Cursor = Cursors.Hand;
-            button2.FlatStyle = FlatStyle.Popup;
-            button2.Font = new Font("Poppins", 9.75F);
-            button2.Location = new Point(98, 203);
-            button2.Name = "button2";
-            button2.Size = new Size(159, 51);
-            button2.TabIndex = 1;
-            button2.Text = "EXTRACT";
-            button2.UseVisualStyleBackColor = false;
-            button2.Click += button2_Click;
+            extract_btn.BackColor = Color.Silver;
+            extract_btn.Cursor = Cursors.Hand;
+            extract_btn.FlatStyle = FlatStyle.Popup;
+            extract_btn.Font = new Font("Poppins", 9.75F);
+            extract_btn.Location = new Point(98, 203);
+            extract_btn.Name = "extract_btn";
+            extract_btn.Size = new Size(159, 51);
+            extract_btn.TabIndex = 1;
+            extract_btn.Text = "EXTRACT";
+            extract_btn.UseVisualStyleBackColor = false;
+            extract_btn.Click += button2_Click;
             // 
-            // button3
+            // about_btn
             // 
-            button3.BackColor = Color.Silver;
-            button3.Cursor = Cursors.Hand;
-            button3.FlatStyle = FlatStyle.Popup;
-            button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(12, 315);
-            button3.Name = "button3";
-            button3.Size = new Size(80, 29);
-            button3.TabIndex = 3;
-            button3.Text = "About";
-            button3.UseVisualStyleBackColor = false;
-            button3.Click += button3_Click;
+            about_btn.BackColor = Color.Silver;
+            about_btn.Cursor = Cursors.Hand;
+            about_btn.FlatStyle = FlatStyle.Popup;
+            about_btn.Font = new Font("Poppins", 9.75F);
+            about_btn.Location = new Point(12, 315);
+            about_btn.Name = "about_btn";
+            about_btn.Size = new Size(80, 29);
+            about_btn.TabIndex = 3;
+            about_btn.Text = "About";
+            about_btn.UseVisualStyleBackColor = false;
+            about_btn.Click += button3_Click;
             // 
-            // button4
+            // exit_btn
             // 
-            button4.BackColor = Color.IndianRed;
-            button4.Cursor = Cursors.Hand;
-            button4.FlatStyle = FlatStyle.Popup;
-            button4.Font = new Font("Poppins", 9.75F);
-            button4.Location = new Point(132, 270);
-            button4.Name = "button4";
-            button4.Size = new Size(86, 28);
-            button4.TabIndex = 4;
-            button4.Text = "EXIT";
-            button4.UseVisualStyleBackColor = false;
-            button4.Click += button4_Click;
+            exit_btn.BackColor = Color.IndianRed;
+            exit_btn.Cursor = Cursors.Hand;
+            exit_btn.FlatStyle = FlatStyle.Popup;
+            exit_btn.Font = new Font("Poppins", 9.75F);
+            exit_btn.Location = new Point(132, 270);
+            exit_btn.Name = "exit_btn";
+            exit_btn.Size = new Size(86, 28);
+            exit_btn.TabIndex = 4;
+            exit_btn.Text = "EXIT";
+            exit_btn.UseVisualStyleBackColor = false;
+            exit_btn.Click += button4_Click;
             // 
             // panel1
             // 
             panel1.BackColor = SystemColors.Info;
             panel1.Controls.Add(label1);
-            panel1.Controls.Add(button3);
-            panel1.Controls.Add(button4);
-            panel1.Controls.Add(button2);
-            panel1.Controls.Add(button1);
+            panel1.Controls.Add(about_btn);
+            panel1.Controls.Add(exit_btn);
+            panel1.Controls.Add(extract_btn);
+            panel1.Controls.Add(compress_btn);
             panel1.Location = new Point(33, 65);
             panel1.Name = "panel1";
             panel1.Size = new Size(361, 357);
@@ -135,10 +135,10 @@
 
         #endregion
 
-        private Button button1;
-        private Button button2;
-        private Button button3;
-        private Button button4;
+        private Button compress_btn;
+        private Button extract_btn;
+        private Button about_btn;
+        private Button exit_btn;
         private Panel panel1;
         private Label label1;
     }
