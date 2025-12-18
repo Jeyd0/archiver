@@ -234,7 +234,7 @@
             label4.BackColor = Color.Transparent;
             label4.FlatStyle = FlatStyle.Popup;
             label4.Font = new Font("Poppins", 9.75F);
-            label4.Location = new Point(15, 235);
+            label4.Location = new Point(11, 235);
             label4.Name = "label4";
             label4.Size = new Size(42, 23);
             label4.TabIndex = 16;
