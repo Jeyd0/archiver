@@ -14,7 +14,7 @@ namespace archiver
     public partial class compress : Form
     {
         // Supported file extensions
-        private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls" };
+        private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls", ".mp3", ".mp4", ".mov", ".mkv", ".webm" };
 
         // List to store file paths
         private List<string> _filePaths = new List<string>();
@@ -228,23 +228,148 @@ namespace archiver
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Supported Files|*.jpg;*.jpeg;*.png;*.pdf;*.docx;*.xlsx;*.xls|" +
+                openFileDialog.Filter = "Supported Files|*.jpg;*.jpeg;*.png;*.pdf;*.docx;*.xlsx;*.xls;*.mp3;*.mp4;*.mov;*.mkv;*.webm|" +
                                         "Images|*.jpg;*.jpeg;*.png|" +
                                         "PDF Files|*.pdf|" +
                                         "Word Documents|*.docx|" +
                                         "Excel Files|*.xlsx;*.xls|" +
+                                        "Audio Files|*.mp3|" +
+                                        "Video Files|*.mp4;*.mov;*.mkv;*.webm|" +
                                         "All Files|*.*";
                 openFileDialog.Multiselect = true;
                 openFileDialog.Title = "Select files to archive";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    foreach (string file in openFileDialog.FileNames)
+                    string[] selectedFiles = openFileDialog.FileNames;
+
+                    // Show progress form for multiple files
+                    if (selectedFiles.Length > 1)
                     {
-                        AddFile(file);
+                        AddFilesWithProgress(selectedFiles);
+                    }
+                    else
+                    {
+                        // Single file - add directly without progress dialog
+                        foreach (string file in selectedFiles)
+                        {
+                            AddFile(file);
+                        }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds multiple files with a progress dialog
+        /// </summary>
+        private void AddFilesWithProgress(string[] files)
+        {
+            using (AddFilesProgressForm progressForm = new AddFilesProgressForm())
+            {
+                progressForm.Show(this);
+                this.Enabled = false;
+
+                int addedCount = 0;
+                int skippedCount = 0;
+
+                try
+                {
+                    progressForm.StartProgress();
+                    int totalFiles = files.Length;
+
+                    for (int i = 0; i < totalFiles; i++)
+                    {
+                        // Check for cancellation
+                        if (progressForm.CancelRequested)
+                        {
+                            break;
+                        }
+
+                        string filePath = files[i];
+                        string fileName = Path.GetFileName(filePath);
+
+                        // Update progress
+                        progressForm.UpdateProgress(fileName, i + 1, totalFiles);
+
+                        // Try to add the file
+                        if (AddFileSilent(filePath))
+                        {
+                            addedCount++;
+                        }
+                        else
+                        {
+                            skippedCount++;
+                        }
+                    }
+
+                    if (!progressForm.CancelRequested)
+                    {
+                        progressForm.SetComplete(addedCount, skippedCount);
+                        System.Threading.Thread.Sleep(500); // Brief pause to show completion
+
+                        if (addedCount > 0)
+                        {
+                            MessageBox.Show($"Successfully added {addedCount} file(s).\n{skippedCount} file(s) were skipped (duplicates or unsupported types).",
+                                "Files Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show("No files were added. All files were either duplicates or unsupported types.",
+                                "No Files Added", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Adding files was cancelled.\n\n{addedCount} file(s) were added before cancellation.",
+                            "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error adding files: {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    this.Enabled = true;
+                    progressForm.Close();
+
+                    // Refresh the filtered list and update status
+                    FilterFileList();
+                    UpdateStatusText();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds a file silently without showing message boxes (for batch adding)
+        /// </summary>
+        /// <returns>True if file was added, false if skipped</returns>
+        private bool AddFileSilent(string filePath)
+        {
+            // Check if file exists
+            if (!File.Exists(filePath))
+            {
+                return false;
+            }
+
+            // Check file extension
+            string extension = Path.GetExtension(filePath).ToLower();
+            if (!IsValidFileType(extension))
+            {
+                return false;
+            }
+
+            // Check for duplicates
+            if (_filePaths.Contains(filePath))
+            {
+                return false;
+            }
+
+            // Add to list
+            _filePaths.Add(filePath);
+            return true;
         }
 
         /// <summary>
@@ -263,7 +388,7 @@ namespace archiver
             string extension = Path.GetExtension(filePath).ToLower();
             if (!IsValidFileType(extension))
             {
-                MessageBox.Show($"Unsupported file type: {extension}\n\nSupported types: jpg, png, pdf, docx, xlsx",
+                MessageBox.Show($"Unsupported file type: {extension}\n\nSupported types: jpg, png, pdf, docx, xlsx, mp3, mp4, mov, mkv, webm",
                     "Invalid File Type", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -888,9 +1013,18 @@ namespace archiver
                 string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
                 if (files != null)
                 {
-                    foreach (string file in files)
+                    // Show progress form for multiple files
+                    if (files.Length > 1)
                     {
-                        AddFile(file);
+                        AddFilesWithProgress(files);
+                    }
+                    else
+                    {
+                        // Single file - add directly without progress dialog
+                        foreach (string file in files)
+                        {
+                            AddFile(file);
+                        }
                     }
                 }
             }

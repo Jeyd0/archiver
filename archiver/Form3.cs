@@ -17,6 +17,7 @@ using SharpCompress.Archives.GZip;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
 using SharpCompress.Readers;
+using DiscUtils.Iso9660;
 
 namespace archiver
 {
@@ -30,6 +31,9 @@ namespace archiver
 
         // Store the list of entries in the archive file
         private List<string> _archiveEntries = new List<string>();
+
+        // Store file sizes for ISO entries
+        private Dictionary<string, long> _isoFileSizes = new Dictionary<string, long>();
 
         // Supported archive extensions
         private readonly string[] _supportedExtensions = { ".zip", ".7z", ".rar", ".tar", ".gz", ".gzip", ".bz2", ".tar.gz", ".tgz", ".tar.bz2", ".tbz2", ".cab", ".iso", ".arj", ".lzh", ".uue", ".ace" };
@@ -152,12 +156,21 @@ namespace archiver
         }
 
         /// <summary>
+        /// Checks if the file is an ISO archive
+        /// </summary>
+        private bool IsIsoFile(string filePath)
+        {
+            return Path.GetExtension(filePath).Equals(".iso", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Loads the contents of the selected archive file into the list box
         /// </summary>
         private void LoadArchiveContents()
         {
             zip_items.Items.Clear();
             _archiveEntries.Clear();
+            _isoFileSizes.Clear();
 
             if (string.IsNullOrEmpty(_archiveFilePath) || !File.Exists(_archiveFilePath))
             {
@@ -168,7 +181,14 @@ namespace archiver
             {
                 string archiveType = GetArchiveTypeDescription(_archiveFilePath);
 
-                // Try to open with SharpCompress
+                // Check if it's an ISO file - use DiscUtils
+                if (IsIsoFile(_archiveFilePath))
+                {
+                    LoadIsoContents();
+                    return;
+                }
+
+                // Try to open with SharpCompress for other formats
                 using (var archive = ArchiveFactory.Open(_archiveFilePath))
                 {
                     foreach (var entry in archive.Entries)
@@ -207,6 +227,85 @@ namespace archiver
                 _archiveFilePath = string.Empty;
                 textBox1.Text = string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Loads the contents of an ISO file using DiscUtils
+        /// </summary>
+        private void LoadIsoContents()
+        {
+            try
+            {
+                using (FileStream isoStream = File.OpenRead(_archiveFilePath))
+                using (CDReader cd = new CDReader(isoStream, true))
+                {
+                    // Get all files recursively
+                    LoadIsoDirectory(cd, "\\");
+                }
+
+                // Update status
+                this.Text = $"EXTRACT (ISO) - {_archiveEntries.Count} file(s) in archive";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading ISO file: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _archiveFilePath = string.Empty;
+                textBox1.Text = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Recursively loads files and directories from an ISO
+        /// </summary>
+        private void LoadIsoDirectory(CDReader cd, string path)
+        {
+            // Get files in current directory
+            foreach (string file in cd.GetFiles(path))
+            {
+                string fileName = file.TrimStart('\\');
+                // Remove ISO version suffix (e.g., ";1")
+                fileName = RemoveIsoVersionSuffix(fileName);
+                
+                long fileSize = cd.GetFileLength(file);
+                
+                _archiveEntries.Add(fileName);
+                _isoFileSizes[fileName] = fileSize;
+                
+                string sizeInfo = FormatFileSize(fileSize);
+                zip_items.Items.Add($"{fileName} ({sizeInfo})");
+            }
+
+            // Recurse into subdirectories
+            foreach (string dir in cd.GetDirectories(path))
+            {
+                string dirName = dir.TrimStart('\\');
+                if (!string.IsNullOrEmpty(dirName))
+                {
+                    _archiveEntries.Add(dirName + "\\");
+                    zip_items.Items.Add($"{dirName}\\ (folder)");
+                }
+                LoadIsoDirectory(cd, dir);
+            }
+        }
+
+        /// <summary>
+        /// Removes the ISO 9660 version suffix (e.g., ";1") from a filename
+        /// </summary>
+        private string RemoveIsoVersionSuffix(string fileName)
+        {
+            // ISO 9660 appends ";1" or similar version numbers to filenames
+            int semicolonIndex = fileName.LastIndexOf(';');
+            if (semicolonIndex > 0)
+            {
+                // Check if everything after the semicolon is a number
+                string afterSemicolon = fileName.Substring(semicolonIndex + 1);
+                if (int.TryParse(afterSemicolon, out _))
+                {
+                    return fileName.Substring(0, semicolonIndex);
+                }
+            }
+            return fileName;
         }
 
         /// <summary>
@@ -339,7 +438,17 @@ namespace archiver
 
                 try
                 {
-                    bool success = ExtractArchiveWithProgress(extractPath, progressForm);
+                    bool success;
+
+                    // Use appropriate extraction method based on file type
+                    if (IsIsoFile(_archiveFilePath))
+                    {
+                        success = ExtractIsoWithProgress(extractPath, progressForm);
+                    }
+                    else
+                    {
+                        success = ExtractArchiveWithProgress(extractPath, progressForm);
+                    }
 
                     if (success)
                     {
@@ -374,6 +483,88 @@ namespace archiver
                     progressForm.Close();
                 }
             }
+        }
+
+        /// <summary>
+        /// Extracts an ISO file with progress reporting using DiscUtils
+        /// </summary>
+        private bool ExtractIsoWithProgress(string extractPath, ExtractProgressForm progressForm)
+        {
+            // Create the extraction folder
+            Directory.CreateDirectory(extractPath);
+
+            progressForm.StartProgress();
+
+            using (FileStream isoStream = File.OpenRead(_archiveFilePath))
+            using (CDReader cd = new CDReader(isoStream, true))
+            {
+                // Get all files (not directories) for progress tracking
+                var files = _archiveEntries.Where(e => !e.EndsWith("\\") && !e.EndsWith("/")).ToList();
+                int totalFiles = files.Count;
+                int currentIndex = 0;
+
+                // Extract all files recursively
+                return ExtractIsoDirectory(cd, "\\", extractPath, progressForm, ref currentIndex, totalFiles);
+            }
+        }
+
+        /// <summary>
+        /// Recursively extracts files and directories from an ISO
+        /// </summary>
+        private bool ExtractIsoDirectory(CDReader cd, string isoPath, string destinationPath, 
+            ExtractProgressForm progressForm, ref int currentIndex, int totalFiles)
+        {
+            // Create destination directory
+            Directory.CreateDirectory(destinationPath);
+
+            // Extract files in current directory
+            foreach (string file in cd.GetFiles(isoPath))
+            {
+                // Check for cancellation
+                if (progressForm.CancelRequested)
+                {
+                    return false;
+                }
+
+                currentIndex++;
+                string fileName = Path.GetFileName(file);
+                // Remove ISO version suffix (e.g., ";1")
+                fileName = RemoveIsoVersionSuffix(fileName);
+                
+                // Update progress
+                progressForm.UpdateProgress(fileName, currentIndex, totalFiles);
+
+                string destFilePath = Path.Combine(destinationPath, fileName);
+
+                // Extract the file
+                using (Stream sourceStream = cd.OpenFile(file, FileMode.Open))
+                using (FileStream destStream = File.Create(destFilePath))
+                {
+                    sourceStream.CopyTo(destStream);
+                }
+
+                // Process UI events to keep the form responsive
+                Application.DoEvents();
+            }
+
+            // Recurse into subdirectories
+            foreach (string dir in cd.GetDirectories(isoPath))
+            {
+                if (progressForm.CancelRequested)
+                {
+                    return false;
+                }
+
+                string dirName = Path.GetFileName(dir.TrimEnd('\\'));
+                string destDirPath = Path.Combine(destinationPath, dirName);
+
+                if (!ExtractIsoDirectory(cd, dir, destDirPath, progressForm, ref currentIndex, totalFiles))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

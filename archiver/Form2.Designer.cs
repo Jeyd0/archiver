@@ -71,7 +71,7 @@
             button3.Cursor = Cursors.Hand;
             button3.FlatStyle = FlatStyle.Popup;
             button3.Font = new Font("Poppins", 9.75F);
-            button3.Location = new Point(12, 441);
+            button3.Location = new Point(12, 315);
             button3.Name = "button3";
             button3.Size = new Size(80, 29);
             button3.TabIndex = 3;
@@ -97,10 +97,11 @@
             // 
             panel1.BackColor = SystemColors.Info;
             panel1.Controls.Add(label1);
+            panel1.Controls.Add(button3);
             panel1.Controls.Add(button4);
             panel1.Controls.Add(button2);
             panel1.Controls.Add(button1);
-            panel1.Location = new Point(36, 46);
+            panel1.Location = new Point(33, 65);
             panel1.Name = "panel1";
             panel1.Size = new Size(361, 357);
             panel1.TabIndex = 5;
@@ -122,7 +123,6 @@
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(435, 482);
             Controls.Add(panel1);
-            Controls.Add(button3);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "home";
             StartPosition = FormStartPosition.CenterScreen;
