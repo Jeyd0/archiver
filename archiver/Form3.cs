@@ -18,6 +18,7 @@ using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using DiscUtils.Iso9660;
+using Ionic.Zip;
 
 namespace archiver
 {
@@ -34,6 +35,9 @@ namespace archiver
 
         // Store file sizes for ISO entries
         private Dictionary<string, long> _isoFileSizes = new Dictionary<string, long>();
+
+        // Store whether the archive is password protected
+        private bool _isPasswordProtected = false;
 
         // Supported archive extensions
         private readonly string[] _supportedExtensions = { ".zip", ".7z", ".rar", ".tar", ".gz", ".gzip", ".bz2", ".tar.gz", ".tgz", ".tar.bz2", ".tbz2", ".cab", ".iso", ".arj", ".lzh", ".uue", ".ace" };
@@ -97,9 +101,7 @@ namespace archiver
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Form f2 = new home();
-            f2.Show();
-            this.Hide();
+            this.Close();
         }
 
         /// <summary>
@@ -164,6 +166,32 @@ namespace archiver
         }
 
         /// <summary>
+        /// Checks if a ZIP archive is password protected
+        /// </summary>
+        private bool IsZipPasswordProtected(string zipPath)
+        {
+            try
+            {
+                using (var archive = SharpCompress.Archives.Zip.ZipArchive.Open(zipPath))
+                {
+                    foreach (var entry in archive.Entries)
+                    {
+                        if (!entry.IsDirectory && entry.IsEncrypted)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch
+            {
+                // If we can't determine, assume not protected
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Loads the contents of the selected archive file into the list box
         /// </summary>
         private void LoadArchiveContents()
@@ -171,6 +199,7 @@ namespace archiver
             zip_items.Items.Clear();
             _archiveEntries.Clear();
             _isoFileSizes.Clear();
+            _isPasswordProtected = false;
 
             if (string.IsNullOrEmpty(_archiveFilePath) || !File.Exists(_archiveFilePath))
             {
@@ -188,6 +217,12 @@ namespace archiver
                     return;
                 }
 
+                // Check if it's a ZIP file and if it's password protected
+                if (Path.GetExtension(_archiveFilePath).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                {
+                    _isPasswordProtected = IsZipPasswordProtected(_archiveFilePath);
+                }
+
                 // Try to open with SharpCompress for other formats
                 using (var archive = ArchiveFactory.Open(_archiveFilePath))
                 {
@@ -200,7 +235,8 @@ namespace archiver
 
                             // Show file name and size
                             string sizeInfo = FormatFileSize(entry.Size);
-                            zip_items.Items.Add($"{entry.Key} ({sizeInfo})");
+                            string protectedIndicator = entry.IsEncrypted ? " 🔒" : "";
+                            zip_items.Items.Add($"{entry.Key} ({sizeInfo}){protectedIndicator}");
                         }
                         else
                         {
@@ -212,7 +248,8 @@ namespace archiver
                 }
 
                 // Update status
-                this.Text = $"EXTRACT ({archiveType}) - {_archiveEntries.Count(e => !e.EndsWith("/") && !e.EndsWith("\\"))} file(s) in archive";
+                string protectedStatus = _isPasswordProtected ? " - Password Protected 🔒" : "";
+                this.Text = $"EXTRACT ({archiveType}) - {_archiveEntries.Count(e => !e.EndsWith("/") && !e.EndsWith("\\"))} file(s) in archive{protectedStatus}";
             }
             catch (Exception ex)
             {
@@ -430,6 +467,20 @@ namespace archiver
                 }
             }
 
+            // Handle password-protected ZIP files
+            string? archivePassword = null;
+            if (_isPasswordProtected && ext == ".zip")
+            {
+                using (var passwordForm = new PasswordForm(Path.GetFileName(_archiveFilePath)))
+                {
+                    if (passwordForm.ShowDialog(this) != DialogResult.OK)
+                    {
+                        return; // User cancelled
+                    }
+                    archivePassword = passwordForm.Password;
+                }
+            }
+
             // Show progress form and extract
             using (ExtractProgressForm progressForm = new ExtractProgressForm())
             {
@@ -444,6 +495,10 @@ namespace archiver
                     if (IsIsoFile(_archiveFilePath))
                     {
                         success = ExtractIsoWithProgress(extractPath, progressForm);
+                    }
+                    else if (_isPasswordProtected && ext == ".zip" && !string.IsNullOrEmpty(archivePassword))
+                    {
+                        success = ExtractPasswordProtectedZipWithProgress(extractPath, progressForm, archivePassword);
                     }
                     else
                     {
@@ -467,6 +522,16 @@ namespace archiver
                         MessageBox.Show("Extraction was cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
+                catch (Ionic.Zip.BadPasswordException)
+                {
+                    // Delete partial extraction on error
+                    if (Directory.Exists(extractPath))
+                    {
+                        try { Directory.Delete(extractPath, true); } catch { }
+                    }
+                    MessageBox.Show("The password you entered is incorrect.\n\nPlease try again with the correct password.",
+                        "Incorrect Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 catch (Exception ex)
                 {
                     // Delete partial extraction on error
@@ -474,8 +539,18 @@ namespace archiver
                     {
                         try { Directory.Delete(extractPath, true); } catch { }
                     }
-                    MessageBox.Show($"Error extracting archive file: {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    
+                    // Check if it's a password-related error
+                    if (ex.Message.Contains("password") || ex.Message.Contains("encrypted"))
+                    {
+                        MessageBox.Show("Failed to extract the archive. The password may be incorrect or the archive may be corrupted.",
+                            "Extraction Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Error extracting archive file: {ex.Message}",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 finally
                 {
@@ -483,6 +558,139 @@ namespace archiver
                     progressForm.Close();
                 }
             }
+        }
+
+        /// <summary>
+        /// Extracts a password-protected ZIP file using DotNetZip
+        /// </summary>
+        private bool ExtractPasswordProtectedZipWithProgress(string extractPath, ExtractProgressForm progressForm, string password)
+        {
+            // Create the extraction folder
+            Directory.CreateDirectory(extractPath);
+
+            progressForm.StartProgress();
+
+            using (var archive = Ionic.Zip.ZipFile.Read(_archiveFilePath))
+            {
+                archive.Password = password;
+                
+                var entries = archive.Entries.ToList();
+                int totalFiles = entries.Count;
+                int currentIndex = 0;
+
+                foreach (var entry in entries)
+                {
+                    // Check for cancellation
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    currentIndex++;
+
+                    // Skip if filename is null or empty
+                    if (string.IsNullOrEmpty(entry.FileName))
+                    {
+                        continue;
+                    }
+
+                    // Update progress
+                    progressForm.UpdateProgress(entry.FileName, currentIndex, totalFiles);
+
+                    // Normalize the path separators (ZIP files use forward slashes)
+                    string normalizedFileName = entry.FileName.Replace('/', Path.DirectorySeparatorChar);
+                    
+                    // Sanitize the filename to remove invalid characters
+                    normalizedFileName = SanitizeFileName(normalizedFileName);
+                    
+                    // Get the full destination path
+                    string destinationPath = Path.Combine(extractPath, normalizedFileName);
+                    
+                    // Security check: ensure the path is within the extract directory
+                    string fullDestPath = Path.GetFullPath(destinationPath);
+                    string fullExtractPath = Path.GetFullPath(extractPath);
+                    if (!fullDestPath.StartsWith(fullExtractPath + Path.DirectorySeparatorChar) &&
+                        !fullDestPath.Equals(fullExtractPath))
+                    {
+                        continue; // Skip potentially malicious entries
+                    }
+
+                    if (entry.IsDirectory)
+                    {
+                        // Create directory
+                        Directory.CreateDirectory(destinationPath);
+                    }
+                    else
+                    {
+                        // Ensure the parent directory exists
+                        string? directoryPath = Path.GetDirectoryName(destinationPath);
+                        if (!string.IsNullOrEmpty(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+
+                        // Extract the file using a stream
+                        using (var fileStream = File.Create(destinationPath))
+                        {
+                            entry.Extract(fileStream);
+                        }
+                    }
+
+                    // Process UI events to keep the form responsive
+                    Application.DoEvents();
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Sanitizes a file path by removing or replacing invalid characters
+        /// </summary>
+        private string SanitizeFileName(string fileName)
+        {
+            // Get invalid characters for file names
+            char[] invalidFileChars = Path.GetInvalidFileNameChars();
+            char[] invalidPathChars = Path.GetInvalidPathChars();
+            
+            // Split the path into parts to handle directories and filename separately
+            string[] parts = fileName.Split(Path.DirectorySeparatorChar, '/');
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                string part = parts[i];
+                
+                // Replace invalid characters with underscore
+                foreach (char c in invalidFileChars)
+                {
+                    if (c != Path.DirectorySeparatorChar && c != '/')
+                    {
+                        part = part.Replace(c, '_');
+                    }
+                }
+                
+                // Also handle some common problematic characters that might slip through
+                part = part.Replace('?', '_');
+                part = part.Replace('*', '_');
+                part = part.Replace('"', '_');
+                part = part.Replace('<', '_');
+                part = part.Replace('>', '_');
+                part = part.Replace('|', '_');
+                part = part.Replace(':', '_');
+                
+                // Remove leading/trailing spaces and dots (Windows doesn't like them)
+                part = part.Trim().TrimEnd('.');
+                
+                // If the part is empty after sanitization, use a placeholder
+                if (string.IsNullOrEmpty(part))
+                {
+                    part = "_";
+                }
+                
+                parts[i] = part;
+            }
+            
+            return string.Join(Path.DirectorySeparatorChar.ToString(), parts);
         }
 
         /// <summary>

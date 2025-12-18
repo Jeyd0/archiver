@@ -8,13 +8,14 @@ using SharpCompress.Compressors.LZMA;
 using SharpCompress.Writers;
 using System.IO.Compression;
 using DiscUtils.Iso9660;
+using Ionic.Zip;
 
 namespace archiver
 {
     public partial class compress : Form
     {
         // Supported file extensions
-        private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls", ".mp3", ".mp4", ".mov", ".mkv", ".webm" };
+        private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls", ".mp3", ".mp4", ".mov", ".mkv", ".webm", ".exe", ".apk", ".ipa" };
 
         // List to store file paths
         private List<string> _filePaths = new List<string>();
@@ -55,6 +56,9 @@ namespace archiver
 
             // Set default selection for combobox
             type.SelectedIndex = 0; // Default to Zip
+
+            // Initially hide password controls (will be shown when ZIP is selected)
+            UpdatePasswordVisibility();
         }
 
         /// <summary>
@@ -66,6 +70,7 @@ namespace archiver
             {
                 _selectedArchiveFormat = type.SelectedItem?.ToString() ?? "Zip";
                 UpdateArchiveNameExtension();
+                UpdatePasswordVisibility();
             }
         }
 
@@ -106,6 +111,25 @@ namespace archiver
                 "lzip" => ".lz",
                 _ => ".zip"
             };
+        }
+
+        /// <summary>
+        /// Updates the visibility of password controls based on selected format
+        /// Password is only supported for ZIP format
+        /// </summary>
+        private void UpdatePasswordVisibility()
+        {
+            bool isZip = _selectedArchiveFormat.Equals("Zip", StringComparison.OrdinalIgnoreCase);
+            password.Visible = isZip;
+            label1.Visible = isZip;
+            showpass.Visible = isZip;
+
+            // Clear password and reset show password checkbox when switching to non-ZIP format
+            if (!isZip)
+            {
+                password.Text = string.Empty;
+                showpass.Checked = false;
+            }
         }
 
         /// <summary>
@@ -235,6 +259,7 @@ namespace archiver
                                         "Excel Files|*.xlsx;*.xls|" +
                                         "Audio Files|*.mp3|" +
                                         "Video Files|*.mp4;*.mov;*.mkv;*.webm|" +
+                                        "Application Files|*.exe;*.apk;*.ipa|" +
                                         "All Files|*.*";
                 openFileDialog.Multiselect = true;
                 openFileDialog.Title = "Select files to archive";
@@ -388,7 +413,7 @@ namespace archiver
             string extension = Path.GetExtension(filePath).ToLower();
             if (!IsValidFileType(extension))
             {
-                MessageBox.Show($"Unsupported file type: {extension}\n\nSupported types: jpg, png, pdf, docx, xlsx, mp3, mp4, mov, mkv, webm",
+                MessageBox.Show($"Unsupported file type: {extension}\n\nSupported types: jpg, png, pdf, docx, xlsx, mp3, mp4, mov, mkv, webm, exe, apk, ipa",
                     "Invalid File Type", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -632,7 +657,17 @@ namespace archiver
 
             progressForm.StartProgress();
 
-            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+            // Get password if provided
+            string? archivePassword = string.IsNullOrEmpty(password.Text) ? null : password.Text;
+
+            // Use DotNetZip if password is provided, otherwise use System.IO.Compression
+            if (!string.IsNullOrEmpty(archivePassword))
+            {
+                return CreatePasswordProtectedZipWithProgress(zipPath, progressForm, archivePassword, usedEntryNames);
+            }
+
+            // Use standard System.IO.Compression for non-password protected archives
+            using (System.IO.Compression.ZipArchive archive = System.IO.Compression.ZipFile.Open(zipPath, ZipArchiveMode.Create))
             {
                 int totalFiles = _filePaths.Count;
 
@@ -668,6 +703,72 @@ namespace archiver
                         archive.CreateEntryFromFile(filePath, entryName, CompressionLevel.Optimal);
                     }
                 }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a password-protected ZIP archive using DotNetZip (Ionic.Zip)
+        /// </summary>
+        private bool CreatePasswordProtectedZipWithProgress(string zipPath, ProgressForm progressForm,
+            string archivePassword, HashSet<string> usedEntryNames)
+        {
+            using (var archive = new Ionic.Zip.ZipFile())
+            {
+                // Set password for the archive
+                archive.Password = archivePassword;
+                archive.Encryption = EncryptionAlgorithm.WinZipAes256;
+
+                int totalFiles = _filePaths.Count;
+
+                for (int i = 0; i < totalFiles; i++)
+                {
+                    // Check for cancellation
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    string filePath = _filePaths[i];
+
+                    if (File.Exists(filePath))
+                    {
+                        string entryName = Path.GetFileName(filePath);
+
+                        // Update progress
+                        progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+
+                        // Handle duplicate file names in archive
+                        string originalName = Path.GetFileNameWithoutExtension(entryName);
+                        string extension = Path.GetExtension(entryName);
+                        int counter = 1;
+
+                        while (usedEntryNames.Contains(entryName))
+                        {
+                            entryName = $"{originalName}_{counter}{extension}";
+                            counter++;
+                        }
+
+                        usedEntryNames.Add(entryName);
+
+                        // Add file to archive
+                        archive.AddFile(filePath, "");
+
+                        // Rename entry if needed for duplicate handling
+                        if (entryName != Path.GetFileName(filePath))
+                        {
+                            var entry = archive[Path.GetFileName(filePath)];
+                            if (entry != null)
+                            {
+                                entry.FileName = entryName;
+                            }
+                        }
+                    }
+                }
+
+                // Save the archive
+                archive.Save(zipPath);
             }
 
             return true;
@@ -1112,9 +1213,7 @@ namespace archiver
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Form f2 = new home();
-            f2.Show();
-            this.Hide();
+            this.Close();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -1128,6 +1227,25 @@ namespace archiver
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void password_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Handles the show password checkbox changed event - toggles password visibility
+        /// </summary>
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            // Toggle password visibility based on checkbox state
+            password.UseSystemPasswordChar = !showpass.Checked;
+        }
+
+        private void zipname_TextChanged(object sender, EventArgs e)
         {
 
         }

@@ -20,6 +20,7 @@ namespace archiver
         private void button2_Click(object sender, EventArgs e)
         {
             Form f3 = new extract();
+            f3.FormClosed += (s, args) => this.Show();
             f3.Show();
             this.Hide();
         }
@@ -27,6 +28,7 @@ namespace archiver
         private void button1_Click(object sender, EventArgs e)
         {
             Form f1 = new compress();
+            f1.FormClosed += (s, args) => this.Show();
             f1.Show();
             this.Hide();
         }

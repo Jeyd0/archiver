@@ -40,6 +40,7 @@
             back_btn = new Button();
             type = new ComboBox();
             panel1 = new Panel();
+            showpass = new CheckBox();
             password = new TextBox();
             label4 = new Label();
             label3 = new Label();
@@ -109,7 +110,7 @@
             compress_btn.Cursor = Cursors.Hand;
             compress_btn.FlatStyle = FlatStyle.Popup;
             compress_btn.Font = new Font("Poppins", 9.75F);
-            compress_btn.Location = new Point(15, 302);
+            compress_btn.Location = new Point(15, 332);
             compress_btn.Name = "compress_btn";
             compress_btn.Size = new Size(140, 33);
             compress_btn.TabIndex = 5;
@@ -123,7 +124,7 @@
             brws_btn.Cursor = Cursors.Hand;
             brws_btn.FlatStyle = FlatStyle.Popup;
             brws_btn.Font = new Font("Poppins", 9.75F);
-            brws_btn.Location = new Point(206, 252);
+            brws_btn.Location = new Point(206, 278);
             brws_btn.Name = "brws_btn";
             brws_btn.Size = new Size(68, 33);
             brws_btn.TabIndex = 6;
@@ -135,7 +136,7 @@
             // 
             selectSave.BorderStyle = BorderStyle.None;
             selectSave.Font = new Font("Poppins", 9.75F);
-            selectSave.Location = new Point(15, 254);
+            selectSave.Location = new Point(15, 280);
             selectSave.Multiline = true;
             selectSave.Name = "selectSave";
             selectSave.PlaceholderText = "Select where to save";
@@ -148,12 +149,13 @@
             zipname.BackColor = SystemColors.Control;
             zipname.BorderStyle = BorderStyle.None;
             zipname.Font = new Font("Poppins", 9.75F);
-            zipname.Location = new Point(15, 198);
+            zipname.Location = new Point(15, 220);
             zipname.Multiline = true;
             zipname.Name = "zipname";
             zipname.PlaceholderText = "Zip Name";
             zipname.Size = new Size(184, 26);
             zipname.TabIndex = 8;
+            zipname.TextChanged += zipname_TextChanged;
             // 
             // search
             // 
@@ -197,6 +199,7 @@
             // panel1
             // 
             panel1.BackColor = Color.Khaki;
+            panel1.Controls.Add(showpass);
             panel1.Controls.Add(password);
             panel1.Controls.Add(back_btn);
             panel1.Controls.Add(type);
@@ -215,6 +218,19 @@
             panel1.TabIndex = 12;
             panel1.Paint += panel1_Paint;
             // 
+            // showpass
+            // 
+            showpass.AutoSize = true;
+            showpass.BackColor = Color.Transparent;
+            showpass.Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            showpass.Location = new Point(15, 166);
+            showpass.Name = "showpass";
+            showpass.Size = new Size(123, 26);
+            showpass.TabIndex = 17;
+            showpass.Text = "Show password";
+            showpass.UseVisualStyleBackColor = false;
+            showpass.CheckedChanged += checkBox1_CheckedChanged;
+            // 
             // password
             // 
             password.BackColor = SystemColors.Control;
@@ -227,6 +243,7 @@
             password.Size = new Size(184, 26);
             password.TabIndex = 12;
             password.UseSystemPasswordChar = true;
+            password.TextChanged += password_TextChanged;
             // 
             // label4
             // 
@@ -234,7 +251,7 @@
             label4.BackColor = Color.Transparent;
             label4.FlatStyle = FlatStyle.Popup;
             label4.Font = new Font("Poppins", 9.75F);
-            label4.Location = new Point(11, 235);
+            label4.Location = new Point(11, 261);
             label4.Name = "label4";
             label4.Size = new Size(42, 23);
             label4.TabIndex = 16;
@@ -256,7 +273,7 @@
             label2.AutoSize = true;
             label2.BackColor = Color.Transparent;
             label2.Font = new Font("Poppins", 9.75F);
-            label2.Location = new Point(12, 179);
+            label2.Location = new Point(12, 201);
             label2.Name = "label2";
             label2.Size = new Size(49, 23);
             label2.TabIndex = 14;
@@ -315,5 +332,6 @@
         private Label label3;
         private Label label2;
         private Label label1;
+        private CheckBox showpass;
     }
 }
