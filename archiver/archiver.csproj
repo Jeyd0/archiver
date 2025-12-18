@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="DiscUtils.Iso9660" Version="0.16.13" />
+    <PackageReference Include="DotNetZip" Version="1.16.0" />
     <PackageReference Include="SharpCompress" Version="0.42.1" />
   </ItemGroup>
 

@@ -10,7 +10,9 @@ A simple and user-friendly Windows desktop application for compressing and extra
 
 ### Compression
 - **Multi-Format Support**: Create archives in ZIP, TAR, ISO, GZip, BZip2, and LZip formats
+- **Password Protection**: Secure your ZIP archives with password encryption
 - **File Selection**: Browse and select multiple files using a file dialog
+- **Batch Processing**: Efficiently add large numbers of files with progress tracking
 - **Drag & Drop**: Simply drag files onto the application window to add them
 - **Search/Filter**: Quickly filter your file list with the built-in search functionality
 - **Custom Archive Names**: Specify your own archive name or use auto-generated names
@@ -20,6 +22,7 @@ A simple and user-friendly Windows desktop application for compressing and extra
 
 ### Extraction
 - **Multi-Format Support**: Extract various archive formats including ZIP, 7z, RAR, TAR, GZip, and more
+- **Password Support**: Extract password-protected ZIP archives
 - **Archive Preview**: View contents of an archive before extracting
 - **Custom Output Folder**: Choose where to extract files
 - **Progress Tracking**: Visual progress bar during extraction
@@ -42,6 +45,9 @@ A simple and user-friendly Windows desktop application for compressing and extra
 | Images | `.jpg`, `.jpeg`, `.png` |
 | Documents | `.pdf`, `.docx` |
 | Spreadsheets | `.xlsx`, `.xls` |
+| Audio | `.mp3` |
+| Video | `.mp4`, `.mov`, `.mkv`, `.webm` |
+| Applications | `.exe`, `.apk`, `.ipa` |
 
 ### Supported Archive Formats for Extraction
 
@@ -136,19 +142,21 @@ The application starts with a home screen where you can choose to:
    - **Add Button**: Click "Add" to open the file browser and select files
    - **Drag and Drop**: Drag files directly onto the application window
 3. Select the desired archive format (ZIP, TAR, ISO, etc.) from the dropdown
-4. Click "Browse" to select the output folder for your archive
-5. (Optional) Enter a custom name in the archive name field
-6. Click "Compress" to create the archive
-7. Monitor progress in the progress dialog
+4. (Optional) For ZIP archives, enter a password to encrypt the file
+5. Click "Browse" to select the output folder for your archive
+6. (Optional) Enter a custom name in the archive name field
+7. Click "Compress" to create the archive
+8. Monitor progress in the progress dialog
 
 ### Extracting Archives
 
 1. Click "Extract" from the home screen
 2. Click "Add" to browse and select an archive file
-3. Preview the archive contents in the list
+3. Preview the archive contents in the list (encrypted files are marked with 🔒)
 4. Click "Browse" to select the output folder for extraction
 5. (Optional) Enter a custom folder name for extracted files
 6. Click "Extract" to extract the archive
+   - If the archive is password-protected, you will be prompted to enter the password
 7. Monitor progress in the progress dialog
 
 ### Managing Files
@@ -199,7 +207,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [.NET 8.0](https://dotnet.microsoft.com/)
 - Windows Forms for the user interface
-- System.IO.Compression for ZIP compression
+- System.IO.Compression for standard ZIP compression
+- [DotNetZip](https://github.com/haf/DotNetZip.Semver) for password-protected ZIP archives
 - [SharpCompress](https://github.com/adamhathcock/sharpcompress) for multi-format archive extraction and compression
 - [DiscUtils](https://github.com/DiscUtils/DiscUtils) for ISO creation
 - Created by Jade Dajuela
