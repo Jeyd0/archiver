@@ -195,6 +195,7 @@
             type.Size = new Size(140, 31);
             type.TabIndex = 11;
             type.Text = "Select type";
+            type.SelectedIndexChanged += type_SelectedIndexChanged;
             // 
             // panel1
             // 
@@ -237,10 +238,8 @@
             password.BorderStyle = BorderStyle.None;
             password.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             password.Location = new Point(15, 142);
-            password.Multiline = true;
             password.Name = "password";
-            password.PlaceholderText = "Optional";
-            password.Size = new Size(184, 26);
+            password.Size = new Size(184, 20);
             password.TabIndex = 12;
             password.UseSystemPasswordChar = true;
             password.TextChanged += password_TextChanged;

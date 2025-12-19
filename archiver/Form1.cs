@@ -24,7 +24,7 @@ namespace archiver
         private string _outputFolderPath = string.Empty;
 
         // Store the selected archive format
-        private string _selectedArchiveFormat = "Zip";
+        private string _selectedArchiveFormat = "Select type";
 
         public compress()
         {
@@ -1241,11 +1241,22 @@ namespace archiver
         /// </summary>
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            // Toggle password visibility based on checkbox state
-            password.UseSystemPasswordChar = !showpass.Checked;
+            if (showpass.Checked == true)
+            {
+                password.UseSystemPasswordChar = false;
+            }
+            else
+            {
+                password.UseSystemPasswordChar = true;
+            }
         }
 
         private void zipname_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void type_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
