@@ -620,6 +620,19 @@ namespace archiver
                         await Task.Delay(500); // Brief pause to show completion
                         MessageBox.Show($"{_selectedArchiveFormat.ToUpper()} archive created successfully!\n\nLocation: {archivePath}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Clear added files after successful compression
+                        _filePaths.Clear();
+                        list_of_item_selected.Items.Clear();
+                        search.Clear();
+                        
+                        // Clear textboxes and reset state
+                        zipname.Text = $"archive_{DateTime.Now:yyyyMMdd}"; // Reset to default name pattern
+                        selectSave.Clear();
+                        password.Clear();
+                        _outputFolderPath = string.Empty;
+                        
+                        UpdateStatusText();
                     }
                     else if (progressForm.CancelRequested)
                     {
