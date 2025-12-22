@@ -150,8 +150,6 @@ namespace archiver
 
                 lblTimeRemaining.Text = $"Estimated time: {FormatTimeRemaining(remainingSeconds)}";
             }
-
-            Application.DoEvents();
         }
 
         /// <summary>

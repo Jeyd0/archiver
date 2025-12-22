@@ -94,9 +94,9 @@ namespace archiver
         /// <summary>
         /// Handles the Extract button click - extracts the archive file
         /// </summary>
-        private void button3_Click(object? sender, EventArgs e)
+        private async void button3_Click(object? sender, EventArgs e)
         {
-            ExtractArchiveFile();
+            await ExtractArchiveFileAsync();
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -391,7 +391,7 @@ namespace archiver
         /// <summary>
         /// Extracts the selected archive file to the output folder
         /// </summary>
-        private void ExtractArchiveFile()
+        private async Task ExtractArchiveFileAsync()
         {
             // Validate archive file is selected
             if (string.IsNullOrEmpty(_archiveFilePath))
@@ -489,26 +489,30 @@ namespace archiver
 
                 try
                 {
-                    bool success;
+                    bool success = false;
 
-                    // Use appropriate extraction method based on file type
-                    if (IsIsoFile(_archiveFilePath))
+                    // Run extraction on a background thread
+                    success = await Task.Run(() =>
                     {
-                        success = ExtractIsoWithProgress(extractPath, progressForm);
-                    }
-                    else if (_isPasswordProtected && ext == ".zip" && !string.IsNullOrEmpty(archivePassword))
-                    {
-                        success = ExtractPasswordProtectedZipWithProgress(extractPath, progressForm, archivePassword);
-                    }
-                    else
-                    {
-                        success = ExtractArchiveWithProgress(extractPath, progressForm);
-                    }
+                        // Use appropriate extraction method based on file type
+                        if (IsIsoFile(_archiveFilePath))
+                        {
+                            return ExtractIsoWithProgress(extractPath, progressForm);
+                        }
+                        else if (_isPasswordProtected && ext == ".zip" && !string.IsNullOrEmpty(archivePassword))
+                        {
+                            return ExtractPasswordProtectedZipWithProgress(extractPath, progressForm, archivePassword);
+                        }
+                        else
+                        {
+                            return ExtractArchiveWithProgress(extractPath, progressForm);
+                        }
+                    });
 
                     if (success)
                     {
                         progressForm.SetComplete();
-                        System.Threading.Thread.Sleep(500); // Brief pause to show completion
+                        await Task.Delay(500); // Brief pause to show completion
                         MessageBox.Show($"Files extracted successfully!\n\nLocation: {extractPath}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }

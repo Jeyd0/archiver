@@ -135,9 +135,9 @@ namespace archiver
         /// <summary>
         /// Handles the Add button click - opens file dialog to browse files
         /// </summary>
-        private void button1_Click_1(object sender, EventArgs e)
+        private async void button1_Click_1(object sender, EventArgs e)
         {
-            BrowseAndAddFiles();
+            await BrowseAndAddFilesAsync();
         }
 
         /// <summary>
@@ -151,9 +151,9 @@ namespace archiver
         /// <summary>
         /// Handles the Compress button click - compresses files to ZIP format
         /// </summary>
-        private void Button3_Click(object? sender, EventArgs e)
+        private async void Button3_Click(object? sender, EventArgs e)
         {
-            CompressFiles();
+            await CompressFilesAsync();
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace archiver
         /// <summary>
         /// Opens a file dialog to browse and add files
         /// </summary>
-        private void BrowseAndAddFiles()
+        private async Task BrowseAndAddFilesAsync()
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -271,7 +271,7 @@ namespace archiver
                     // Show progress form for multiple files
                     if (selectedFiles.Length > 1)
                     {
-                        AddFilesWithProgress(selectedFiles);
+                        await AddFilesWithProgressAsync(selectedFiles);
                     }
                     else
                     {
@@ -288,7 +288,7 @@ namespace archiver
         /// <summary>
         /// Adds multiple files with a progress dialog
         /// </summary>
-        private void AddFilesWithProgress(string[] files)
+        private async Task AddFilesWithProgressAsync(string[] files)
         {
             using (AddFilesProgressForm progressForm = new AddFilesProgressForm())
             {
@@ -303,35 +303,45 @@ namespace archiver
                     progressForm.StartProgress();
                     int totalFiles = files.Length;
 
-                    for (int i = 0; i < totalFiles; i++)
+                    // Run file adding on a background thread
+                    await Task.Run(() =>
                     {
-                        // Check for cancellation
-                        if (progressForm.CancelRequested)
+                        for (int i = 0; i < totalFiles; i++)
                         {
-                            break;
-                        }
+                            // Check for cancellation
+                            if (progressForm.CancelRequested)
+                            {
+                                break;
+                            }
 
-                        string filePath = files[i];
-                        string fileName = Path.GetFileName(filePath);
+                            string filePath = files[i];
+                            string fileName = Path.GetFileName(filePath);
 
-                        // Update progress
-                        progressForm.UpdateProgress(fileName, i + 1, totalFiles);
+                            // Update progress
+                            progressForm.UpdateProgress(fileName, i + 1, totalFiles);
 
-                        // Try to add the file
-                        if (AddFileSilent(filePath))
-                        {
-                            addedCount++;
+                            // Try to add the file
+                            bool added = false;
+                            this.Invoke(() =>
+                            {
+                                added = AddFileSilent(filePath);
+                            });
+
+                            if (added)
+                            {
+                                addedCount++;
+                            }
+                            else
+                            {
+                                skippedCount++;
+                            }
                         }
-                        else
-                        {
-                            skippedCount++;
-                        }
-                    }
+                    });
 
                     if (!progressForm.CancelRequested)
                     {
                         progressForm.SetComplete(addedCount, skippedCount);
-                        System.Threading.Thread.Sleep(500); // Brief pause to show completion
+                        await Task.Delay(500); // Brief pause to show completion
 
                         if (addedCount > 0)
                         {
@@ -518,7 +528,7 @@ namespace archiver
         /// <summary>
         /// Compresses files to the selected archive format
         /// </summary>
-        private void CompressFiles()
+        private async Task CompressFilesAsync()
         {
             // Validate there are files to compress
             if (_filePaths.Count == 0)
@@ -580,36 +590,34 @@ namespace archiver
                 {
                     bool success = false;
 
-                    switch (format)
+                    // Run compression on a background thread
+                    success = await Task.Run(() =>
                     {
-                        case "zip":
-                            success = CreateZipArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        case "tar":
-                            success = CreateTarArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        case "gzip":
-                            success = CreateGZipArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        case "bzip2":
-                            success = CreateBZip2ArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        case "lzip":
-                            success = CreateLZipArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        case "iso":
-                            success = CreateIsoArchiveWithProgress(archivePath, progressForm);
-                            break;
-                        default:
-                            MessageBox.Show($"The {_selectedArchiveFormat} format is not supported.",
-                                "Format Not Supported", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                    }
+                        switch (format)
+                        {
+                            case "zip":
+                                return CreateZipArchiveWithProgress(archivePath, progressForm);
+                            case "tar":
+                                return CreateTarArchiveWithProgress(archivePath, progressForm);
+                            case "gzip":
+                                return CreateGZipArchiveWithProgress(archivePath, progressForm);
+                            case "bzip2":
+                                return CreateBZip2ArchiveWithProgress(archivePath, progressForm);
+                            case "lzip":
+                                return CreateLZipArchiveWithProgress(archivePath, progressForm);
+                            case "iso":
+                                return CreateIsoArchiveWithProgress(archivePath, progressForm);
+                            default:
+                                this.Invoke(() => MessageBox.Show($"The {_selectedArchiveFormat} format is not supported.",
+                                    "Format Not Supported", MessageBoxButtons.OK, MessageBoxIcon.Information));
+                                return false;
+                        }
+                    });
 
                     if (success)
                     {
                         progressForm.SetComplete();
-                        System.Threading.Thread.Sleep(500); // Brief pause to show completion
+                        await Task.Delay(500); // Brief pause to show completion
                         MessageBox.Show($"{_selectedArchiveFormat.ToUpper()} archive created successfully!\n\nLocation: {archivePath}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -1105,9 +1113,9 @@ namespace archiver
         }
 
         /// <summary>
-        /// Handles drag drop event for drag and drop functionality
+        /// Handles the Home_DragDrop event for drag and drop functionality
         /// </summary>
-        private void Home_DragDrop(object? sender, DragEventArgs e)
+        private async void Home_DragDrop(object? sender, DragEventArgs e)
         {
             if (e.Data != null)
             {
@@ -1117,7 +1125,7 @@ namespace archiver
                     // Show progress form for multiple files
                     if (files.Length > 1)
                     {
-                        AddFilesWithProgress(files);
+                        await AddFilesWithProgressAsync(files);
                     }
                     else
                     {
