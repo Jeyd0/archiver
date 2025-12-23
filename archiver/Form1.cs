@@ -19,6 +19,9 @@ namespace archiver
 
         // List to store file paths
         private List<string> _filePaths = new List<string>();
+        
+        // List to store folder paths
+        private List<string> _folderPaths = new List<string>();
 
         // Store the selected output folder path
         private string _outputFolderPath = string.Empty;
@@ -189,6 +192,12 @@ namespace archiver
                 {
                     list_of_item_selected.Items.Add(Path.GetFileName(filePath));
                 }
+                
+                // Show all folders
+                foreach (string folderPath in _folderPaths)
+                {
+                    list_of_item_selected.Items.Add($"?? {Path.GetFileName(folderPath)}");
+                }
             }
             else
             {
@@ -199,6 +208,16 @@ namespace archiver
                     if (fileName.Contains(searchText))
                     {
                         list_of_item_selected.Items.Add(Path.GetFileName(filePath));
+                    }
+                }
+                
+                // Show only folders matching the search text
+                foreach (string folderPath in _folderPaths)
+                {
+                    string folderName = Path.GetFileName(folderPath).ToLower();
+                    if (folderName.Contains(searchText))
+                    {
+                        list_of_item_selected.Items.Add($"?? {Path.GetFileName(folderPath)}");
                     }
                 }
             }
@@ -252,7 +271,7 @@ namespace archiver
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Supported Files|*.jpg;*.jpeg;*.png;*.pdf;*.docx;*.xlsx;*.xls;*.mp3;*.mp4;*.mov;*.mkv;*.webm|" +
+                openFileDialog.Filter = "Supported Files|*.jpg;*.jpeg;*.png;*.pdf;*.docx;*.xlsx;*.xls;*.mp3;*.mp4;*.mov;*.mkv;*.webm;*.exe;*.apk;*.ipa|" +
                                         "Images|*.jpg;*.jpeg;*.png|" +
                                         "PDF Files|*.pdf|" +
                                         "Word Documents|*.docx|" +
@@ -283,6 +302,53 @@ namespace archiver
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Opens a folder browser dialog to browse and add a folder
+        /// </summary>
+        private void BrowseAndAddFolder()
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "Select folder to add to archive";
+                folderDialog.ShowNewFolderButton = false;
+                folderDialog.UseDescriptionForTitle = true;
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string folderPath = folderDialog.SelectedPath;
+                    AddFolder(folderPath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds a folder to the list
+        /// </summary>
+        private void AddFolder(string folderPath)
+        {
+            // Check if folder exists
+            if (!Directory.Exists(folderPath))
+            {
+                MessageBox.Show($"Folder not found: {folderPath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Check for duplicates
+            if (_folderPaths.Contains(folderPath))
+            {
+                MessageBox.Show("This folder is already in the list.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Add to folder list
+            _folderPaths.Add(folderPath);
+            
+            // Add to display list with a folder indicator
+            list_of_item_selected.Items.Add($"?? {Path.GetFileName(folderPath)}");
+
+            UpdateStatusText();
         }
 
         /// <summary>
@@ -474,7 +540,7 @@ namespace archiver
         /// </summary>
         private void ClearAllItems()
         {
-            if (_filePaths.Count > 0)
+            if (_filePaths.Count > 0 || _folderPaths.Count > 0)
             {
                 var result = MessageBox.Show("Are you sure you want to clear all items?", "Confirm Clear",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -482,6 +548,7 @@ namespace archiver
                 if (result == DialogResult.Yes)
                 {
                     _filePaths.Clear();
+                    _folderPaths.Clear();
                     list_of_item_selected.Items.Clear();
                     search.Clear(); // Clear search text
                     UpdateStatusText();
@@ -530,10 +597,10 @@ namespace archiver
         /// </summary>
         private async Task CompressFilesAsync()
         {
-            // Validate there are files to compress
-            if (_filePaths.Count == 0)
+            // Validate there are files or folders to compress
+            if (_filePaths.Count == 0 && _folderPaths.Count == 0)
             {
-                MessageBox.Show("Please add files to compress.", "No Files", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please add files or folders to compress.", "No Files or Folders", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -573,9 +640,9 @@ namespace archiver
 
             // Validate format-specific limitations
             string format = _selectedArchiveFormat.ToLower();
-            if ((format == "gzip" || format == "bzip2" || format == "lzip") && _filePaths.Count > 1)
+            if ((format == "gzip" || format == "bzip2" || format == "lzip") && (_filePaths.Count + _folderPaths.Count) > 1)
             {
-                MessageBox.Show($"{_selectedArchiveFormat} format can only compress a single file.\n\nPlease select only one file or use ZIP/TAR format for multiple files.",
+                MessageBox.Show($"{_selectedArchiveFormat} format can only compress a single file.\n\nPlease select only one file or use ZIP/TAR format for multiple files/folders.",
                     $"{_selectedArchiveFormat} Limitation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -621,8 +688,9 @@ namespace archiver
                         MessageBox.Show($"{_selectedArchiveFormat.ToUpper()} archive created successfully!\n\nLocation: {archivePath}",
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        // Clear added files after successful compression
+                        // Clear added files and folders after successful compression
                         _filePaths.Clear();
+                        _folderPaths.Clear();
                         list_of_item_selected.Items.Clear();
                         search.Clear();
                         
@@ -690,9 +758,17 @@ namespace archiver
             // Use standard System.IO.Compression for non-password protected archives
             using (System.IO.Compression.ZipArchive archive = System.IO.Compression.ZipFile.Open(zipPath, ZipArchiveMode.Create))
             {
+                // Count total files including files in folders
                 int totalFiles = _filePaths.Count;
+                foreach (string folderPath in _folderPaths)
+                {
+                    totalFiles += Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
+                }
 
-                for (int i = 0; i < totalFiles; i++)
+                int currentFileIndex = 0;
+
+                // Add individual files
+                for (int i = 0; i < _filePaths.Count; i++)
                 {
                     // Check for cancellation
                     if (progressForm.CancelRequested)
@@ -705,9 +781,10 @@ namespace archiver
                     if (File.Exists(filePath))
                     {
                         string entryName = Path.GetFileName(filePath);
+                        currentFileIndex++;
 
                         // Update progress
-                        progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
 
                         // Handle duplicate file names in archive
                         string originalName = Path.GetFileNameWithoutExtension(entryName);
@@ -722,6 +799,40 @@ namespace archiver
 
                         usedEntryNames.Add(entryName);
                         archive.CreateEntryFromFile(filePath, entryName, CompressionLevel.Optimal);
+                    }
+                }
+
+                // Add folders recursively
+                foreach (string folderPath in _folderPaths)
+                {
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    string folderName = Path.GetFileName(folderPath);
+                    string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+
+                    foreach (string file in files)
+                    {
+                        if (progressForm.CancelRequested)
+                        {
+                            return false;
+                        }
+
+                        currentFileIndex++;
+
+                        // Get relative path within the folder
+                        string relativePath = Path.GetRelativePath(folderPath, file);
+                        string entryName = Path.Combine(folderName, relativePath);
+
+                        // Update progress
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
+
+                        // Normalize path separators for ZIP
+                        entryName = entryName.Replace(Path.DirectorySeparatorChar, '/');
+
+                        archive.CreateEntryFromFile(file, entryName, CompressionLevel.Optimal);
                     }
                 }
             }
@@ -741,9 +852,17 @@ namespace archiver
                 archive.Password = archivePassword;
                 archive.Encryption = EncryptionAlgorithm.WinZipAes256;
 
+                // Count total files including files in folders
                 int totalFiles = _filePaths.Count;
+                foreach (string folderPath in _folderPaths)
+                {
+                    totalFiles += Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
+                }
 
-                for (int i = 0; i < totalFiles; i++)
+                int currentFileIndex = 0;
+
+                // Add individual files
+                for (int i = 0; i < _filePaths.Count; i++)
                 {
                     // Check for cancellation
                     if (progressForm.CancelRequested)
@@ -756,9 +875,10 @@ namespace archiver
                     if (File.Exists(filePath))
                     {
                         string entryName = Path.GetFileName(filePath);
+                        currentFileIndex++;
 
                         // Update progress
-                        progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
 
                         // Handle duplicate file names in archive
                         string originalName = Path.GetFileNameWithoutExtension(entryName);
@@ -774,17 +894,37 @@ namespace archiver
                         usedEntryNames.Add(entryName);
 
                         // Add file to archive
-                        archive.AddFile(filePath, "");
+                        var entry = archive.AddFile(filePath, "");
 
                         // Rename entry if needed for duplicate handling
                         if (entryName != Path.GetFileName(filePath))
                         {
-                            var entry = archive[Path.GetFileName(filePath)];
-                            if (entry != null)
-                            {
-                                entry.FileName = entryName;
-                            }
+                            entry.FileName = entryName;
                         }
+                    }
+                }
+
+                // Add folders recursively
+                foreach (string folderPath in _folderPaths)
+                {
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    string folderName = Path.GetFileName(folderPath);
+                    
+                    // Add entire directory
+                    archive.AddDirectory(folderPath, folderName);
+                    
+                    // Update progress for each file in the folder
+                    string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+                    foreach (string file in files)
+                    {
+                        currentFileIndex++;
+                        string relativePath = Path.GetRelativePath(folderPath, file);
+                        string entryName = Path.Combine(folderName, relativePath);
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
                     }
                 }
 
@@ -813,9 +953,17 @@ namespace archiver
 
             using (var archive = TarArchive.Create())
             {
+                // Count total files including files in folders
                 int totalFiles = _filePaths.Count;
+                foreach (string folderPath in _folderPaths)
+                {
+                    totalFiles += Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
+                }
 
-                for (int i = 0; i < totalFiles; i++)
+                int currentFileIndex = 0;
+
+                // Add individual files
+                for (int i = 0; i < _filePaths.Count; i++)
                 {
                     // Check for cancellation
                     if (progressForm.CancelRequested)
@@ -828,9 +976,10 @@ namespace archiver
                     if (File.Exists(filePath))
                     {
                         string entryName = Path.GetFileName(filePath);
+                        currentFileIndex++;
 
                         // Update progress
-                        progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
 
                         // Handle duplicate file names in archive
                         string originalName = Path.GetFileNameWithoutExtension(entryName);
@@ -845,6 +994,40 @@ namespace archiver
 
                         usedEntryNames.Add(entryName);
                         archive.AddEntry(entryName, filePath);
+                    }
+                }
+
+                // Add folders recursively
+                foreach (string folderPath in _folderPaths)
+                {
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    string folderName = Path.GetFileName(folderPath);
+                    string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+
+                    foreach (string file in files)
+                    {
+                        if (progressForm.CancelRequested)
+                        {
+                            return false;
+                        }
+
+                        currentFileIndex++;
+
+                        // Get relative path within the folder
+                        string relativePath = Path.GetRelativePath(folderPath, file);
+                        string entryName = Path.Combine(folderName, relativePath);
+
+                        // Update progress
+                        progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
+
+                        // Normalize path separators for TAR (use forward slashes)
+                        entryName = entryName.Replace(Path.DirectorySeparatorChar, '/');
+
+                        archive.AddEntry(entryName, file);
                     }
                 }
 
@@ -998,9 +1181,17 @@ namespace archiver
             builder.UseJoliet = true;
             builder.VolumeIdentifier = "ARCHIVE";
 
+            // Count total files including files in folders
             int totalFiles = _filePaths.Count;
+            foreach (string folderPath in _folderPaths)
+            {
+                totalFiles += Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
+            }
 
-            for (int i = 0; i < totalFiles; i++)
+            int currentFileIndex = 0;
+
+            // Add individual files
+            for (int i = 0; i < _filePaths.Count; i++)
             {
                 // Check for cancellation
                 if (progressForm.CancelRequested)
@@ -1013,9 +1204,10 @@ namespace archiver
                 if (File.Exists(filePath))
                 {
                     string entryName = Path.GetFileName(filePath);
+                    currentFileIndex++;
 
                     // Update progress
-                    progressForm.UpdateProgress(entryName, i + 1, totalFiles);
+                    progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
 
                     // Handle duplicate file names in archive
                     string originalName = Path.GetFileNameWithoutExtension(entryName);
@@ -1033,6 +1225,40 @@ namespace archiver
                 }
             }
 
+            // Add folders recursively
+            foreach (string folderPath in _folderPaths)
+            {
+                if (progressForm.CancelRequested)
+                {
+                    return false;
+                }
+
+                string folderName = Path.GetFileName(folderPath);
+                string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+
+                foreach (string file in files)
+                {
+                    if (progressForm.CancelRequested)
+                    {
+                        return false;
+                    }
+
+                    currentFileIndex++;
+
+                    // Get relative path within the folder
+                    string relativePath = Path.GetRelativePath(folderPath, file);
+                    string entryName = Path.Combine(folderName, relativePath);
+
+                    // Update progress
+                    progressForm.UpdateProgress(entryName, currentFileIndex, totalFiles);
+
+                    // Normalize path separators for ISO (use backslashes)
+                    entryName = entryName.Replace('/', '\\');
+
+                    builder.AddFile(entryName, file);
+                }
+            }
+
             // Build and save the ISO
             builder.Build(isoPath);
 
@@ -1044,10 +1270,13 @@ namespace archiver
         /// </summary>
         private void UpdateStatusText()
         {
-            if (_filePaths.Count > 0)
+            int totalItems = _filePaths.Count + _folderPaths.Count;
+            
+            if (totalItems > 0)
             {
                 long totalSize = GetTotalFileSize();
-                insertfile.Text = $"{_filePaths.Count} file(s) selected - Total: {FormatFileSize(totalSize)}";
+                string itemText = totalItems == 1 ? "item" : "items";
+                insertfile.Text = $"{totalItems} {itemText} selected - Total: {FormatFileSize(totalSize)}";
             }
             else
             {
@@ -1064,6 +1293,9 @@ namespace archiver
 
             ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove Selected");
             removeItem.Click += (s, e) => RemoveSelectedItem();
+            
+            ToolStripMenuItem addFolderItem = new ToolStripMenuItem("Add Folder");
+            addFolderItem.Click += (s, e) => BrowseAndAddFolder();
 
             ToolStripMenuItem clearAllItem = new ToolStripMenuItem("Clear All");
             clearAllItem.Click += (s, e) => ClearAllItems();
@@ -1076,6 +1308,8 @@ namespace archiver
 
             contextMenu.Items.Add(removeItem);
             contextMenu.Items.Add(openFileItem);
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add(addFolderItem);
             contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add(clearSearchItem);
             contextMenu.Items.Add(clearAllItem);
@@ -1132,21 +1366,39 @@ namespace archiver
         {
             if (e.Data != null)
             {
-                string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
-                if (files != null)
+                string[]? items = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                if (items != null)
                 {
-                    // Show progress form for multiple files
-                    if (files.Length > 1)
+                    // Separate files and folders
+                    List<string> files = new List<string>();
+                    List<string> folders = new List<string>();
+
+                    foreach (string item in items)
                     {
-                        await AddFilesWithProgressAsync(files);
-                    }
-                    else
-                    {
-                        // Single file - add directly without progress dialog
-                        foreach (string file in files)
+                        if (Directory.Exists(item))
                         {
-                            AddFile(file);
+                            folders.Add(item);
                         }
+                        else if (File.Exists(item))
+                        {
+                            files.Add(item);
+                        }
+                    }
+
+                    // Add folders
+                    foreach (string folder in folders)
+                    {
+                        AddFolder(folder);
+                    }
+
+                    // Add files
+                    if (files.Count > 1)
+                    {
+                        await AddFilesWithProgressAsync(files.ToArray());
+                    }
+                    else if (files.Count == 1)
+                    {
+                        AddFile(files[0]);
                     }
                 }
             }
@@ -1198,6 +1450,8 @@ namespace archiver
         public long GetTotalFileSize()
         {
             long totalSize = 0;
+            
+            // Add size of individual files
             foreach (string filePath in _filePaths)
             {
                 if (File.Exists(filePath))
@@ -1205,6 +1459,23 @@ namespace archiver
                     totalSize += new FileInfo(filePath).Length;
                 }
             }
+            
+            // Add size of files in folders
+            foreach (string folderPath in _folderPaths)
+            {
+                if (Directory.Exists(folderPath))
+                {
+                    string[] files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+                    foreach (string file in files)
+                    {
+                        if (File.Exists(file))
+                        {
+                            totalSize += new FileInfo(file).Length;
+                        }
+                    }
+                }
+            }
+            
             return totalSize;
         }
 
