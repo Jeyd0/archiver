@@ -73,6 +73,11 @@ namespace archiver
 
             // Set default extract folder name
             extractName.Text = $"extracted_{DateTime.Now:yyyyMMdd}";
+
+            // Allow drag and drop
+            this.AllowDrop = true;
+            this.DragEnter += Extract_DragEnter;
+            this.DragDrop += Extract_DragDrop;
         }
 
         /// <summary>
@@ -898,6 +903,62 @@ namespace archiver
             }
 
             return $"{size:0.##} {sizes[order]}";
+        }
+
+        /// <summary>
+        /// Handles drag enter event for drag and drop functionality
+        /// </summary>
+        private void Extract_DragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // Check if the dragged file is a supported archive
+                string[]? files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                
+                if (files != null && files.Length == 1)
+                {
+                    string ext = Path.GetExtension(files[0]).ToLower();
+                    if (_supportedExtensions.Contains(ext))
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                        return;
+                    }
+                }
+            }
+            
+            e.Effect = DragDropEffects.None;
+        }
+
+        /// <summary>
+        /// Handles drag drop event for drag and drop functionality
+        /// </summary>
+        private void Extract_DragDrop(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    // Take the first file (archive files)
+                    string archiveFile = files[0];
+                    
+                    // Validate it's a supported archive format
+                    string ext = Path.GetExtension(archiveFile).ToLower();
+                    if (_supportedExtensions.Contains(ext) && File.Exists(archiveFile))
+                    {
+                        _archiveFilePath = archiveFile;
+                        insert.Text = Path.GetFileName(_archiveFilePath);
+                        
+                        // Load and display archive contents
+                        LoadArchiveContents();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please drag and drop a supported archive file.\n\nSupported formats: ZIP, 7z, RAR, TAR, GZ, BZ2, CAB, ISO, and more.",
+                            "Unsupported File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
         }
     }
 }
