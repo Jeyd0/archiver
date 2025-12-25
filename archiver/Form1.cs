@@ -14,9 +14,6 @@ namespace archiver
 {
     public partial class compress : Form
     {
-        // Supported file extensions
-        private readonly string[] _supportedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".docx", ".xlsx", ".xls", ".mp3", ".mp4", ".mov", ".mkv", ".webm", ".exe", ".apk", ".ipa" };
-
         // List to store file paths
         private List<string> _filePaths = new List<string>();
         
@@ -271,15 +268,7 @@ namespace archiver
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Supported Files|*.jpg;*.jpeg;*.png;*.pdf;*.docx;*.xlsx;*.xls;*.mp3;*.mp4;*.mov;*.mkv;*.webm;*.exe;*.apk;*.ipa|" +
-                                        "Images|*.jpg;*.jpeg;*.png|" +
-                                        "PDF Files|*.pdf|" +
-                                        "Word Documents|*.docx|" +
-                                        "Excel Files|*.xlsx;*.xls|" +
-                                        "Audio Files|*.mp3|" +
-                                        "Video Files|*.mp4;*.mov;*.mkv;*.webm|" +
-                                        "Application Files|*.exe;*.apk;*.ipa|" +
-                                        "All Files|*.*";
+                openFileDialog.Filter = "All Files|*.*";
                 openFileDialog.Multiselect = true;
                 openFileDialog.Title = "Select files to archive";
 
@@ -411,12 +400,12 @@ namespace archiver
 
                         if (addedCount > 0)
                         {
-                            MessageBox.Show($"Successfully added {addedCount} file(s).\n{skippedCount} file(s) were skipped (duplicates or unsupported types).",
+                            MessageBox.Show($"Successfully added {addedCount} file(s).\n{skippedCount} file(s) were skipped (duplicates).",
                                 "Files Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("No files were added. All files were either duplicates or unsupported types.",
+                            MessageBox.Show("No files were added. All files were duplicates.",
                                 "No Files Added", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
@@ -455,20 +444,13 @@ namespace archiver
                 return false;
             }
 
-            // Check file extension
-            string extension = Path.GetExtension(filePath).ToLower();
-            if (!IsValidFileType(extension))
-            {
-                return false;
-            }
-
             // Check for duplicates
             if (_filePaths.Contains(filePath))
             {
                 return false;
             }
 
-            // Add to list
+            // Add to list (no file type restriction - accept all files)
             _filePaths.Add(filePath);
             return true;
         }
@@ -485,15 +467,6 @@ namespace archiver
                 return;
             }
 
-            // Check file extension
-            string extension = Path.GetExtension(filePath).ToLower();
-            if (!IsValidFileType(extension))
-            {
-                MessageBox.Show($"Unsupported file type: {extension}\n\nSupported types: jpg, png, pdf, docx, xlsx, mp3, mp4, mov, mkv, webm, exe, apk, ipa",
-                    "Invalid File Type", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             // Check for duplicates
             if (_filePaths.Contains(filePath))
             {
@@ -501,21 +474,13 @@ namespace archiver
                 return;
             }
 
-            // Add to list
+            // Add to list (no file type restriction - accept all files)
             _filePaths.Add(filePath);
 
             // Refresh the filtered list
             FilterFileList();
 
             UpdateStatusText();
-        }
-
-        /// <summary>
-        /// Validates if the file extension is supported
-        /// </summary>
-        private bool IsValidFileType(string extension)
-        {
-            return _supportedExtensions.Contains(extension.ToLower());
         }
 
         /// <summary>
