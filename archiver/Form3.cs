@@ -78,6 +78,55 @@ namespace archiver
             this.AllowDrop = true;
             this.DragEnter += Extract_DragEnter;
             this.DragDrop += Extract_DragDrop;
+
+            // Enable keyboard shortcuts
+            this.KeyPreview = true;
+            this.KeyDown += Extract_KeyDown;
+        }
+
+        /// <summary>
+        /// Handles keyboard shortcuts for the extract form
+        /// </summary>
+        private void Extract_KeyDown(object? sender, KeyEventArgs e)
+        {
+            // Ctrl+O - Add archive file
+            if (e.Control && e.KeyCode == Keys.O)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                BrowseAndAddArchiveFile();
+            }
+            // Ctrl+B - Browse output folder
+            else if (e.Control && e.KeyCode == Keys.B)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                BrowseOutputFolder();
+            }
+            // Ctrl+Enter - Start extraction
+            else if (e.Control && e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button3_Click(this, EventArgs.Empty);
+            }
+            // F5 - Refresh archive contents
+            else if (e.KeyCode == Keys.F5)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                if (!string.IsNullOrEmpty(_archiveFilePath) && File.Exists(_archiveFilePath))
+                {
+                    LoadArchiveContents();
+                }
+            }
+            // Escape - Close form
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                this.Close();
+            }
         }
 
         /// <summary>
@@ -644,9 +693,6 @@ namespace archiver
                             entry.Extract(fileStream);
                         }
                     }
-
-                    // Process UI events to keep the form responsive
-                    Application.DoEvents();
                 }
             }
 
@@ -759,9 +805,6 @@ namespace archiver
                 {
                     sourceStream.CopyTo(destStream);
                 }
-
-                // Process UI events to keep the form responsive
-                Application.DoEvents();
             }
 
             // Recurse into subdirectories
@@ -850,9 +893,6 @@ namespace archiver
                             Overwrite = true
                         });
                     }
-
-                    // Process UI events to keep the form responsive
-                    Application.DoEvents();
                 }
             }
 

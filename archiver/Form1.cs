@@ -59,6 +59,82 @@ namespace archiver
 
             // Initially hide password controls (will be shown when ZIP is selected)
             UpdatePasswordVisibility();
+
+            // Enable keyboard shortcuts
+            this.KeyPreview = true;
+            this.KeyDown += Compress_KeyDown;
+        }
+
+        /// <summary>
+        /// Handles keyboard shortcuts for the compress form
+        /// </summary>
+        private void Compress_KeyDown(object? sender, KeyEventArgs e)
+        {
+            // Ctrl+O - Add files
+            if (e.Control && e.KeyCode == Keys.O)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button1_Click_1(this, EventArgs.Empty);
+            }
+            // Ctrl+F - Focus search box
+            else if (e.Control && e.KeyCode == Keys.F)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                search.Focus();
+                search.SelectAll();
+            }
+            // Delete - Remove selected item
+            else if (e.KeyCode == Keys.Delete && list_of_item_selected.Focused)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                RemoveSelectedItem();
+            }
+            // Escape - Clear search or close if search is empty
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                if (!string.IsNullOrEmpty(search.Text))
+                {
+                    search.Clear();
+                    list_of_item_selected.Focus();
+                }
+                else
+                {
+                    this.Close();
+                }
+            }
+            // Ctrl+L - Clear all items
+            else if (e.Control && e.KeyCode == Keys.L)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                ClearAllItems();
+            }
+            // Ctrl+B - Browse output folder
+            else if (e.Control && e.KeyCode == Keys.B)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                BrowseOutputFolder();
+            }
+            // Ctrl+Enter - Start compression
+            else if (e.Control && e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                Button3_Click(this, EventArgs.Empty);
+            }
+            // Ctrl+Shift+F - Add folder
+            else if (e.Control && e.Shift && e.KeyCode == Keys.F)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                BrowseAndAddFolder();
+            }
         }
 
         /// <summary>
