@@ -8,10 +8,11 @@ namespace archiver
         private Label lblTimeRemaining;
         private Label lblCurrentFile;
         private Button btnCancel;
-        private bool _cancelRequested = false;
+        private CancellationTokenSource? _cancellationTokenSource;
         private DateTime _startTime;
 
-        public bool CancelRequested => _cancelRequested;
+        public bool CancelRequested => _cancellationTokenSource?.IsCancellationRequested ?? false;
+        public CancellationToken CancellationToken => _cancellationTokenSource?.Token ?? CancellationToken.None;
 
         public ProgressForm()
         {
@@ -102,7 +103,7 @@ namespace archiver
             
             if (result == DialogResult.Yes)
             {
-                _cancelRequested = true;
+                _cancellationTokenSource?.Cancel();
                 lblStatus.Text = "Cancelling...";
                 btnCancel.Enabled = false;
             }
@@ -114,7 +115,8 @@ namespace archiver
         public void StartProgress()
         {
             _startTime = DateTime.Now;
-            _cancelRequested = false;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         /// <summary>
@@ -189,6 +191,15 @@ namespace archiver
             int hours = (int)(seconds / 3600);
             int mins = (int)((seconds % 3600) / 60);
             return $"{hours}h {mins}m";
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _cancellationTokenSource?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

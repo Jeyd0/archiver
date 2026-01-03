@@ -35,7 +35,44 @@ namespace archiver
 
         private void home_Load(object sender, EventArgs e)
         {
+            // Enable keyboard shortcuts
+            this.KeyPreview = true;
+            this.KeyDown += Home_KeyDown;
+        }
 
+        /// <summary>
+        /// Handles keyboard shortcuts for the home form
+        /// </summary>
+        private void Home_KeyDown(object? sender, KeyEventArgs e)
+        {
+            // C key - Compress
+            if (e.KeyCode == Keys.C && !e.Control && !e.Alt && !e.Shift)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button1_Click(this, EventArgs.Empty);
+            }
+            // E key - Extract
+            else if (e.KeyCode == Keys.E && !e.Control && !e.Alt && !e.Shift)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button2_Click(this, EventArgs.Empty);
+            }
+            // F1 - About
+            else if (e.KeyCode == Keys.F1)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button3_Click(this, EventArgs.Empty);
+            }
+            // Escape or Alt+F4 - Exit
+            else if (e.KeyCode == Keys.Escape || (e.Alt && e.KeyCode == Keys.F4))
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                button4_Click(this, EventArgs.Empty);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
