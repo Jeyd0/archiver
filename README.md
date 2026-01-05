@@ -211,4 +211,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [DotNetZip](https://github.com/haf/DotNetZip.Semver) for password-protected ZIP archives
 - [SharpCompress](https://github.com/adamhathcock/sharpcompress) for multi-format archive extraction and compression
 - [DiscUtils](https://github.com/DiscUtils/DiscUtils) for ISO creation
-- Created by Jade Dajuela
+- Created by Jeyd0
